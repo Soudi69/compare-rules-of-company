@@ -26,3 +26,31 @@ export interface Recommendation {
   description: string
   priority: 'critical' | 'important' | 'standard'
 }
+
+export interface User {
+  id: string
+  email: string
+  name: string
+  token: string
+}
+
+export interface Company {
+  id: string
+  name: string
+  ticker?: string
+  industry: string
+  founded: number
+  logo?: string
+  description: string
+}
+
+export interface CompanyPolicy {
+  id: string
+  companyId: string
+  year: number
+  title: string
+  summary: string
+  keyPoints: string[]
+  complianceScore: number
+  lastUpdated: string
+}

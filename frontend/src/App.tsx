@@ -1,26 +1,31 @@
 import { useState } from 'react'
-import { Sparkles, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react'
-import CompanyInput from './components/CompanyInput'
-import AnalysisResults from './components/AnalysisResults'
-import LoadingSpinner from './components/LoadingSpinner'
+import { Sparkles, LogOut, Star, Zap, Globe } from 'lucide-react'
+import { useAuth } from './context/AuthContext'
+import LoginScreen from './components/LoginScreen'
+import CompanySidebar from './components/CompanySidebar'
+import PolicyView from './components/PolicyView'
 import { analyzeCompanyRules } from './services/api'
-import type { AnalysisResult } from './types'
+import type { AnalysisResult, Company } from './types'
 
 function App() {
+  const { user, isAuthenticated, logout } = useAuth()
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleAnalyze = async (companyName: string) => {
+  const handleSelectCompany = async (company: Company) => {
+    setSelectedCompany(company)
     setIsLoading(true)
     setError(null)
     setAnalysis(null)
 
     try {
-      const result = await analyzeCompanyRules(companyName)
+      const result = await analyzeCompanyRules(company.name)
       setAnalysis(result)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred during analysis'
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred during analysis'
       setError(errorMessage)
       console.error('Analysis error:', err)
     } finally {
@@ -28,80 +33,124 @@ function App() {
     }
   }
 
+  if (!isAuthenticated) {
+    return <LoginScreen />
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-dark bg-fixed">
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-dark-900/80 border-b border-purple-900/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="h-screen bg-gradient-dark flex flex-col overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Aurora-like gradient background with orange + purple */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-600/20 rounded-full filter blur-3xl animate-float"></div>
+        <div className="absolute -bottom-20 right-1/4 w-80 h-80 bg-purple-600/20 rounded-full filter blur-3xl animate-aurora-wave"></div>
+        <div className="absolute top-1/2 right-0 w-72 h-72 bg-orange-600/20 rounded-full filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Header with enhanced cosmic styling */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-gradient-to-r from-dark-900/90 via-dark-900/95 to-dark-900/90 border-b border-gradient-to-r from-orange-900/50 via-purple-900/30 to-orange-900/50 shadow-2xl">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-600/20 rounded-lg">
-                <Sparkles className="w-6 h-6 text-purple-400" />
+            <div className="flex items-center space-x-4">
+              {/* Cosmic logo */}
+              <div className="relative p-3 bg-gradient-to-br from-orange-600/30 to-purple-600/20 rounded-xl border border-orange-500/50 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-600/20 to-purple-600/10 animate-pulse"></div>
+                <Sparkles className="w-6 h-6 text-amber-300 relative z-10 drop-shadow-lg" />
               </div>
+              
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
-                  AI Rules Analyzer
+                <h1 className="text-2xl font-black bg-gradient-to-r from-amber-300 via-orange-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg">
+                  ✨ Apte
                 </h1>
-                <p className="text-sm text-dark-400">Compare company ethical guidelines over time</p>
+                <p className="text-xs text-amber-200/80 font-semibold uppercase tracking-wider">
+                  AI Principle Tracker Ethos
+                </p>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="hidden sm:flex items-center space-x-3 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-900/20 to-purple-900/20 border border-orange-500/30 backdrop-blur-sm">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center shadow-lg shadow-orange-500/50">
+                  <span className="text-white font-bold text-sm drop-shadow-lg">
+                    {user?.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-white font-semibold text-sm">{user?.name}</p>
+                  <p className="text-amber-200/70 text-xs">{user?.email}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-600/20 to-pink-600/20 hover:from-red-600/40 hover:to-pink-600/40 text-red-300 hover:text-red-200 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl hover:shadow-red-500/20"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Input */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <CompanyInput onAnalyze={handleAnalyze} isLoading={isLoading} />
-            </div>
-          </div>
+      <div className="flex-1 flex overflow-hidden relative z-10">
+        {/* Left Sidebar - Companies */}
+        <div className="w-80 border-r border-gradient-to-b from-orange-900/30 to-purple-900/20 bg-gradient-to-b from-dark-900/50 to-dark-900/20 backdrop-blur-sm overflow-hidden">
+          <CompanySidebar
+            companies={[]}
+            selectedCompany={selectedCompany}
+            onSelectCompany={handleSelectCompany}
+            isLoading={isLoading}
+          />
+        </div>
 
-          {/* Right Column - Results */}
-          <div className="lg:col-span-2">
+        {/* Right Content - Policy Details */}
+        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {error && (
-              <div className="bg-red-900/20 border border-red-600/30 rounded-xl p-6 mb-6 backdrop-blur-sm">
+              <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-red-400 mb-1">Analysis Error</h3>
-                    <p className="text-red-300/80">{error}</p>
-                  </div>
+                  <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-200 font-semibold">{error}</p>
                 </div>
               </div>
             )}
 
-            {isLoading && <LoadingSpinner />}
+            {selectedCompany && analysis && (
+              <div className="animate-fade-in">
+                <PolicyView analysis={analysis} isLoading={isLoading} />
+              </div>
+            )}
 
-            {analysis && !isLoading && <AnalysisResults analysis={analysis} />}
-
-            {!isLoading && !analysis && !error && (
-              <div className="bg-dark-800/50 backdrop-blur-sm border border-purple-900/20 rounded-xl p-12 text-center">
-                <div className="max-w-md mx-auto">
-                  <div className="p-4 bg-purple-900/20 rounded-full w-fit mx-auto mb-4">
-                    <TrendingUp className="w-8 h-8 text-purple-400" />
+            {!selectedCompany && !analysis && !isLoading && !error && (
+              <div className="flex items-center justify-center h-96">
+                <div className="text-center max-w-md">
+                  {/* Cosmic animation container */}
+                  <div className="relative p-8 mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="relative flex items-center justify-center space-x-2">
+                      <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
+                      <Globe className="w-10 h-10 text-orange-400 animate-float" />
+                      <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" style={{ animationDirection: 'reverse' }} />
+                    </div>
                   </div>
-                  <h2 className="text-xl font-semibold mb-2 text-white">Ready to analyze</h2>
-                  <p className="text-dark-400">
-                    Enter a company name to get started. We'll analyze their AI ethical guidelines and highlight key changes and red flags.
+                  
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
+                    Welcome to Apte
+                  </h2>
+                  <p className="text-amber-200/80 mb-4 leading-relaxed">
+                    Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
+                  </p>
+                  <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
+                    Select a company to begin →
                   </p>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-purple-900/20 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <p className="text-center text-dark-500 text-sm">
-            Powered by Llama 2 • AI Rules Analyzer v1.0
-          </p>
-        </div>
-      </footer>
+      </div>
     </div>
   )
 }

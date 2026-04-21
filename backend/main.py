@@ -10,8 +10,8 @@ load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="AI Rules Analyzer",
-    description="Analyze company AI ethical guidelines using Llama 2",
+    title="Apte - AI Principle Tracker Ethos",
+    description="Analyze corporate AI ethics policies across sectors using advanced NLP and governance analysis",
     version="1.0.0"
 )
 

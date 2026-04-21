@@ -1,37 +1,40 @@
 version: '3.8'
 
 services:
-  # Ollama service for LLM - using official image from Docker Hub
+  # Ollama service for LLM - using lightweight Mistral model
   ollama:
     image: ollama/ollama:latest
-    container_name: ai-rules-ollama
+    container_name: apte-ollama
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_KEEP_ALIVE=24h
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
     networks:
-      - ai-rules-network
+      - apte-network
     restart: unless-stopped
+    # Note: First run will download Mistral (4.1GB, ~20 min)
+    # Subsequent runs will use cached model
 
   # Backend API service
   backend:
     build:
       context: ..
       dockerfile: docker/Dockerfile.backend
-    container_name: ai-rules-backend
+    container_name: apte-backend
     ports:
       - "8000:8000"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - OLLAMA_MODEL=llama2
+      - OLLAMA_MODEL=mistral
       - LOG_LEVEL=INFO
     depends_on:
       ollama:
@@ -43,7 +46,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - ai-rules-network
+      - apte-network
     restart: unless-stopped
 
   # Frontend service
@@ -51,7 +54,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.frontend
-    container_name: ai-rules-frontend
+    container_name: apte-frontend
     ports:
       - "5173:5173"
     depends_on:
@@ -64,7 +67,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - ai-rules-network
+      - apte-network
     restart: unless-stopped
     environment:
       - VITE_API_URL=http://localhost:8000
@@ -76,5 +79,5 @@ volumes:
 
 # Custom network for service communication
 networks:
-  ai-rules-network:
+  apte-network:
     driver: bridge

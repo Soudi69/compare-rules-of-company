@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# 🚀 AI Rules Analyzer - Simple Docker Run Script
-# Updated for reorganized folder structure
-# This script pulls pre-built images and starts everything
+################################################################################
+# 🚀 Apte - AI Principle Tracker Ethos
+# One-command quick start - just run ./run.sh
+################################################################################
 
 set -e
 
@@ -11,195 +12,195 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m'
+
+# Project paths
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$PROJECT_DIR/backend"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
+DOCKER_DIR="$PROJECT_DIR/docker"
+
+################################################################################
+# UTILITY FUNCTIONS
+################################################################################
+
+################################################################################
+# UTILITY FUNCTIONS
+################################################################################
+
+print_step() {
+    echo -e "${MAGENTA}→ $1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+################################################################################
+# MAIN SCRIPT
+################################################################################
 
 clear
 
 echo ""
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  🚀 AI Rules Analyzer - Quick Docker Start                ║${NC}"
+echo -e "${BLUE}║  🚀 Apte - AI Principle Tracker Ethos                     ║${NC}"
+echo -e "${BLUE}║  Starting your application...                             ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
 # Check if Docker is available
-echo -e "${BLUE}→${NC} Checking Docker installation..."
+echo -e "${BLUE}→ Checking Docker installation...${NC}"
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}✗ Docker not found${NC}"
-    echo ""
-    echo "Please install Docker Desktop from: https://www.docker.com/products/docker-desktop"
-    echo ""
-    exit 1
-fi
-
-echo -e "${GREEN}✓ Docker found${NC}"
-docker --version
-echo ""
-
-# Check if Docker daemon is running
-echo -e "${BLUE}→${NC} Checking Docker daemon..."
-if ! docker ps &> /dev/null; then
-    echo -e "${RED}✗ Docker daemon not running${NC}"
-    echo ""
-    echo "Please start Docker Desktop and try again"
-    echo ""
-    exit 1
-fi
-
-echo -e "${GREEN}✓ Docker daemon is running${NC}"
-echo ""
-
-# Navigate to project directory
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$PROJECT_DIR"
-
-echo -e "${BLUE}→${NC} Project directory: $PROJECT_DIR"
-echo ""
-
-# Check if docker-compose.yml exists
-if [ ! -f "docker/docker-compose.yml" ]; then
-    echo -e "${RED}✗ docker/docker-compose.yml not found${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}✓ docker/docker-compose.yml found${NC}"
-echo ""
-
-# Navigate to docker directory for compose commands
-cd docker
-
-# Pull latest images
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}→ Pulling Docker images (first time takes a few minutes)${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-echo -e "${YELLOW}  • Pulling ollama/ollama:latest...${NC}"
-docker pull ollama/ollama:latest
-
-echo ""
-echo -e "${YELLOW}  • Building backend (FastAPI)...${NC}"
-docker-compose build backend --no-cache || true
-
-echo ""
-echo -e "${YELLOW}  • Building frontend (React)...${NC}"
-docker-compose build frontend --no-cache || true
-
-echo ""
-echo -e "${GREEN}✓ Images ready${NC}"
-echo ""
-
-# Pull Llama2 model
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}→ Starting Ollama to download Llama2 model${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-echo -e "${YELLOW}  • Starting ollama container...${NC}"
-docker-compose up -d ollama
-
-echo ""
-echo -e "${YELLOW}  • Waiting for Ollama to be ready (30-60 seconds)...${NC}"
-sleep 5
-
-# Wait for Ollama to be healthy
-max_attempts=30
-attempt=0
-while [ $attempt -lt $max_attempts ]; do
-    if docker-compose exec -T ollama curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
-        echo -e "${GREEN}  ✓ Ollama is ready${NC}"
-        break
-    fi
-    echo -ne "\r  Waiting... (${attempt}/${max_attempts})"
-    sleep 2
-    attempt=$((attempt + 1))
-done
-
-echo ""
-
-# Check if Llama2 model is already available
-echo -e "${YELLOW}  • Checking for Llama2 model...${NC}"
-if docker-compose exec -T ollama ollama list | grep -q "llama2"; then
-    echo -e "${GREEN}  ✓ Llama2 model is available${NC}"
+    print_error "Docker not found. Using local mode instead."
+    HAS_DOCKER=false
 else
-    echo -e "${YELLOW}  • Downloading Llama2 model (4GB - this takes 5-10 minutes)...${NC}"
-    echo -e "${YELLOW}    Be patient, this is a one-time download!${NC}"
-    echo ""
-    docker-compose exec -T ollama ollama pull llama2
+    print_success "Docker found"
+    
+    # Check if Docker daemon is running
+    echo -e "${BLUE}→ Checking Docker daemon...${NC}"
+    if ! docker ps &> /dev/null; then
+        print_warning "Docker daemon not running. Using local mode instead."
+        HAS_DOCKER=false
+    else
+        print_success "Docker daemon is running"
+        HAS_DOCKER=true
+    fi
 fi
 
 echo ""
 
-# Start all services
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}→ Starting all services${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-docker-compose up -d
-
-echo ""
-echo -e "${BLUE}→ Waiting for services to be healthy...${NC}"
-echo ""
-
-# Wait for all services to be healthy
-max_wait=60
-elapsed=0
-while [ $elapsed -lt $max_wait ]; do
-    all_healthy=true
+# ============================================================================
+# DOCKER MODE
+# ============================================================================
+if [ "$HAS_DOCKER" = true ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}→ Starting with Docker (fastest way!)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
     
-    if ! docker-compose exec -T backend curl -s http://localhost:8000/health > /dev/null 2>&1; then
-        all_healthy=false
+    cd "$DOCKER_DIR"
+    
+    # Pull images
+    echo -e "${YELLOW}  • Pulling latest images (first time takes a few minutes)...${NC}"
+    docker pull ollama/ollama:latest > /dev/null 2>&1 &
+    bg_pid=$!
+    
+    # Build services
+    echo -e "${YELLOW}  • Building services...${NC}"
+    docker-compose build --no-cache > /dev/null 2>&1 || true
+    
+    wait $bg_pid 2>/dev/null || true
+    
+    print_success "Images ready"
+    echo ""
+    
+    # Start Ollama first
+    echo -e "${YELLOW}  • Starting Ollama container...${NC}"
+    docker-compose up -d ollama 2>/dev/null || true
+    
+    echo -e "${YELLOW}  • Waiting for Ollama to be ready...${NC}"
+    sleep 3
+    
+    # Check if Llama2 model exists, if not download it
+    if ! docker-compose exec -T ollama ollama list 2>/dev/null | grep -q "llama2"; then
+        echo -e "${YELLOW}  • Downloading Llama2 model (4GB - one-time, 5-10 minutes)...${NC}"
+        docker-compose exec -T ollama ollama pull llama2 > /dev/null 2>&1 || true
     fi
     
-    if [ "$all_healthy" = true ]; then
-        echo -e "${GREEN}✓ All services are healthy!${NC}"
-        break
+    echo ""
+    
+    # Start all services
+    echo -e "${BLUE}→ Starting all services...${NC}"
+    echo ""
+    docker-compose up -d
+    
+    # Wait for services
+    echo -e "${YELLOW}  • Waiting for services to be healthy...${NC}"
+    sleep 5
+    
+    echo ""
+    docker-compose ps
+    
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}✓ READY!${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}🌐 Open in your browser:${NC}"
+    echo ""
+    echo -e "${GREEN}   Frontend:  http://localhost:5173${NC}"
+    echo -e "${GREEN}   API Docs:  http://localhost:8000/docs${NC}"
+    echo ""
+    echo -e "${YELLOW}To stop: ${CYAN}cd docker && docker-compose down${NC}"
+    echo ""
+    
+# ============================================================================
+# LOCAL MODE (No Docker)
+# ============================================================================
+else
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}→ Starting locally (no Docker)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    
+    # Setup backend
+    echo -e "${YELLOW}  • Setting up backend...${NC}"
+    cd "$BACKEND_DIR"
+    
+    if [ ! -d ".venv" ]; then
+        print_step "Creating virtual environment..."
+        python3 -m venv .venv
     fi
     
-    echo -ne "\r  Waiting for services... ${elapsed}s"
-    sleep 2
-    elapsed=$((elapsed + 2))
-done
+    source .venv/bin/activate
+    
+    if [ -f "requirements.txt" ]; then
+        pip install -q -r requirements.txt 2>/dev/null || pip install -r requirements.txt
+    fi
+    
+    print_success "Backend ready"
+    echo ""
+    
+    # Setup frontend
+    echo -e "${YELLOW}  • Setting up frontend...${NC}"
+    cd "$FRONTEND_DIR"
+    
+    if [ ! -d "node_modules" ]; then
+        npm install -q
+    fi
+    
+    print_success "Frontend ready"
+    echo ""
+    
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}✓ READY!${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Start services in separate terminals:${NC}"
+    echo ""
+    echo -e "${CYAN}  Terminal 1 (Backend):${NC}"
+    echo "    cd $BACKEND_DIR"
+    echo "    source .venv/bin/activate"
+    echo "    python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    echo ""
+    echo -e "${CYAN}  Terminal 2 (Frontend):${NC}"
+    echo "    cd $FRONTEND_DIR"
+    echo "    npm run dev"
+    echo ""
+    echo -e "${YELLOW}Then open:${NC}"
+    echo -e "${GREEN}   http://localhost:5173${NC}"
+    echo ""
+fi
 
-echo ""
-echo ""
-
-# Show status
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✓ SERVICES RUNNING${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-docker-compose ps
-
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✓ READY TO USE${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-echo -e "${YELLOW}🌐 Open in your browser:${NC}"
-echo ""
-echo -e "${GREEN}   Frontend:  http://localhost:5173${NC}"
-echo -e "${GREEN}   API Docs:  http://localhost:8000/docs${NC}"
-echo ""
-
-echo -e "${YELLOW}📝 Quick Commands:${NC}"
-echo ""
-echo "   View logs:     docker-compose logs -f"
-echo "   Stop services: docker-compose stop"
-echo "   Restart:       docker-compose restart"
-echo "   Remove:        docker-compose down"
-echo ""
-
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo -e "${GREEN}🎉 Your AI Rules Analyzer is running!${NC}"
-echo ""
-echo "1. Open http://localhost:5173 in your browser"
-echo "2. Search for a company (OpenAI, Google, Microsoft, etc.)"
-echo "3. Click Analyze"
-echo "4. Wait 30-60 seconds for results"
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""

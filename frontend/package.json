@@ -1,7 +1,8 @@
 {
-  "name": "ai-rules-analyzer",
+  "name": "apte",
   "private": true,
   "version": "0.1.0",
+  "description": "Apte - AI Principle Tracker Ethos",
   "type": "module",
   "scripts": {
     "dev": "vite",

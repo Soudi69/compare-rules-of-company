@@ -8,28 +8,233 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0f1219 0%, #1a1f2e 25%, #2f354a 50%, #1a1f2e 75%, #0f1219 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1f2937;
+  background: #0f1219;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #7e22ce;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #d612ff, #00f0ff);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(214, 18, 255, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9333ea;
+  background: linear-gradient(135deg, #ff1493, #d946ef);
+  box-shadow: 0 0 15px rgba(214, 18, 255, 0.8);
+}
+
+/* Component Styles */
+@layer components {
+  /* Cosmic Button - Primary (CTA) */
+  .btn-cosmic-primary {
+    @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 ease-out;
+    background: linear-gradient(135deg, #d612ff, #8595ff);
+    box-shadow: 0 0 20px rgba(214, 18, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-cosmic-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #00f0ff, #ff1493);
+    transition: left 0.3s ease-out;
+    z-index: -1;
+  }
+
+  .btn-cosmic-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(214, 18, 255, 0.6), 0 0 60px rgba(0, 240, 255, 0.3);
+  }
+
+  .btn-cosmic-primary:hover::before {
+    left: 0;
+  }
+
+  /* Cosmic Button - Secondary */
+  .btn-cosmic-secondary {
+    @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 ease-out;
+    background: rgba(214, 18, 255, 0.15);
+    border: 2px solid #d612ff;
+    box-shadow: 0 0 15px rgba(214, 18, 255, 0.3);
+  }
+
+  .btn-cosmic-secondary:hover {
+    transform: translateY(-2px);
+    background: rgba(214, 18, 255, 0.25);
+    box-shadow: 0 0 25px rgba(214, 18, 255, 0.5);
+  }
+
+  /* Cosmic Button - Ghost */
+  .btn-cosmic-ghost {
+    @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 ease-out;
+    border: 2px solid rgba(213, 18, 255, 0.5);
+    color: #00f0ff;
+  }
+
+  .btn-cosmic-ghost:hover {
+    background: rgba(214, 18, 255, 0.1);
+    border-color: #d612ff;
+    color: #d612ff;
+    box-shadow: 0 0 20px rgba(214, 18, 255, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Card Component - Cosmic Glow */
+  .card-cosmic {
+    @apply rounded-2xl p-6 backdrop-blur-md border transition-all duration-300;
+    background: rgba(26, 31, 46, 0.8);
+    border-color: rgba(214, 18, 255, 0.2);
+    box-shadow: 0 0 20px rgba(214, 18, 255, 0.15);
+  }
+
+  .card-cosmic:hover {
+    background: rgba(26, 31, 46, 0.95);
+    border-color: rgba(214, 18, 255, 0.4);
+    box-shadow: 0 0 30px rgba(214, 18, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1);
+    transform: translateY(-4px);
+  }
+
+  /* Input Component - Cosmic Style */
+  .input-cosmic {
+    @apply px-4 py-3 rounded-xl w-full text-white transition-all duration-300;
+    background: rgba(15, 18, 25, 0.6);
+    border: 2px solid rgba(214, 18, 255, 0.2);
+    box-shadow: inset 0 0 10px rgba(214, 18, 255, 0.05);
+  }
+
+  .input-cosmic::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .input-cosmic:focus {
+    outline: none;
+    border-color: #d612ff;
+    background: rgba(15, 18, 25, 0.8);
+    box-shadow: 
+      inset 0 0 10px rgba(214, 18, 255, 0.1),
+      0 0 20px rgba(214, 18, 255, 0.3);
+  }
+
+  /* Badge Component - Cosmic */
+  .badge-cosmic {
+    @apply inline-block px-4 py-2 rounded-full font-semibold text-sm;
+    background: linear-gradient(135deg, rgba(214, 18, 255, 0.2), rgba(0, 240, 255, 0.2));
+    border: 1px solid rgba(214, 18, 255, 0.4);
+    color: #00f0ff;
+    box-shadow: 0 0 10px rgba(214, 18, 255, 0.2);
+  }
+
+  /* Text Gradient - Aurora */
+  .text-gradient-aurora {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #00f0ff, #d612ff, #ff1493, #3b82f6);
+    animation: aurora-wave 6s ease-in-out infinite;
+    background-size: 300% 300%;
+  }
+
+  /* Heading - Cosmic */
+  .heading-cosmic {
+    @apply text-4xl font-bold tracking-tight;
+    background: linear-gradient(135deg, #ffffff, #00f0ff, #d612ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow Effect - Subtle */
+  .glow-subtle {
+    box-shadow: 0 0 20px rgba(214, 18, 255, 0.2);
+  }
+
+  /* Glow Effect - Medium */
+  .glow-medium {
+    box-shadow: 0 0 30px rgba(214, 18, 255, 0.4);
+  }
+
+  /* Glow Effect - Strong */
+  .glow-strong {
+    box-shadow: 0 0 40px rgba(214, 18, 255, 0.6);
+  }
+
+  /* Aurora Glow - Cyan + Magenta */
+  .glow-aurora {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(214, 18, 255, 0.3);
+  }
+
+  /* Cosmic Divider */
+  .divider-cosmic {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(214, 18, 255, 0.5), transparent);
+  }
+
+  /* Cosmic Grid Background */
+  .grid-cosmic {
+    background-image: 
+      linear-gradient(rgba(214, 18, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(214, 18, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Floating Animation */
+  .float-element {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Glow Pulse Animation */
+  .glow-pulsing {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* Shimmer Text Effect */
+  .shimmer-text {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  /* Backdrop Blur Optimization */
+  .backdrop-blur-cosmic {
+    @apply backdrop-blur-md;
+    background-color: rgba(15, 18, 25, 0.4);
+  }
+}
+
+/* Glass Morphism */
+.glass-cosmos {
+  background: rgba(26, 31, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(214, 18, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(214, 18, 255, 0.1);
+}
+
+.glass-cosmos:hover {
+  background: rgba(26, 31, 46, 0.8);
+  border-color: rgba(214, 18, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(214, 18, 255, 0.2);
 }

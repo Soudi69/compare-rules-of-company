@@ -1,11 +1,14 @@
 import axios from 'axios'
 import type { AnalysisResult } from '../types'
 
-const API_BASE_URL = '/api'
+const API_BASE_URL = 'http://localhost:8000'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 120000, // 2 minutes for LLM processing
+  headers: {
+    'Content-Type': 'application/json',
+  }
 })
 
 export const analyzeCompanyRules = async (companyName: string): Promise<AnalysisResult> => {
