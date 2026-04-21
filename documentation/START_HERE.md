@@ -1,193 +1,98 @@
-# 🚀 Welcome to Apte - AI Principle Tracker Ethos# 📖 START HERE - Apte Documentation Quick Access
+# 📖 START HERE - Apte Documentation Quick Access
 
-
-
-**Quick Start:** Just run this command!**Welcome to Apte!** (AI Principle Tracker Ethos) Your documentation is now fully organized. Here's how to find what you need.
-
-
-
-```bash---
-
-./run.sh
-
-```## 🚀 FASTEST WAY TO RUN THE APP
-
-
-
-Then open: **http://localhost:5173**```bash
-
-# Terminal 1:
-
----./run.sh backend
-
-
-
-## 📚 Documentation# Terminal 2:
-
-./run.sh frontend
-
-All documentation is organized in the `documentation/` folder:
-
-# Then open: http://localhost:5173
-
-### Getting Started```
-
-- 📖 **[SETUP_COMPLETE.md](documentation/SETUP_COMPLETE.md)** - Project setup and architecture
-
-- 🚀 **[APPLICATION_RUNNING.md](documentation/APPLICATION_RUNNING.md)** - Running the application⏱️ **Takes 15 seconds**
-
-- 📋 **[START_HERE.md](documentation/START_HERE.md)** - Complete navigation guide
+**Welcome to Apte!** (AI Principle Tracker Ethos) Your documentation is now fully organized. Here's how to find what you need.
 
 ---
 
-### Project Information
+## 🚀 FASTEST WAY TO RUN THE APP
 
-- 🏷️ **[PROJECT_RENAME_SUMMARY.md](documentation/PROJECT_RENAME_SUMMARY.md)** - Project branding (Apte)## 📍 WHERE IS... (Quick Answers)
+```bash
+# Terminal 1:
+./run.sh backend
 
-- 📊 **[TECHNICAL_REPORT.md](documentation/TECHNICAL_REPORT.md)** - Technical architecture
+# Terminal 2:
+./run.sh frontend
+
+# Then open: http://localhost:5173
+```
+
+⏱️ **Takes 15 seconds**
+
+---
+
+## 📍 WHERE IS... (Quick Answers)
 
 | Question | Answer |
-
-### Running & Execution|----------|--------|
-
-- ⚡ **[RUN_SCRIPT_AUTO_START.md](documentation/RUN_SCRIPT_AUTO_START.md)** - Auto-start run.sh guide| **How do I run the app?** | `documentation/RUN_QUICK_REFERENCE.md` |
-
-- 🔧 **[RUN_SCRIPT_FIX.md](documentation/RUN_SCRIPT_FIX.md)** - Script debugging| **What's the project status?** | `documentation/FINAL_ANSWER.md` |
-
-- 📦 **[SIMPLIFIED_RUN.md](documentation/SIMPLIFIED_RUN.md)** - One-command startup| **How do I set up for first time?** | `documentation/SETUP_COMPLETE.md` |
-
+|----------|--------|
+| **How do I run the app?** | `documentation/RUN_QUICK_REFERENCE.md` |
+| **What's the project status?** | `documentation/FINAL_ANSWER.md` |
+| **How do I set up for first time?** | `documentation/SETUP_COMPLETE.md` |
 | **What's the data format?** | `documentation/DATA_DICTIONARY.md` |
-
-### Theme & UI| **How do I use Cosmos theme?** | `documentation/COSMOS_THEME_GUIDE.md` |
-
-- 🎨 **[COSMIC_UI_ENHANCEMENT.md](documentation/COSMIC_UI_ENHANCEMENT.md)** - Orange + Purple theme| **What's my current score?** | `documentation/MAXIMUM_MARKS_ASSESSMENT.md` |
-
-- ✨ **[COSMIC_UI_LIVE.md](documentation/COSMIC_UI_LIVE.md)** - Live UI features| **What do I need to submit?** | `documentation/SUBMISSION_GUIDE.md` |
-
+| **How do I use Cosmos theme?** | `documentation/COSMOS_THEME_GUIDE.md` |
+| **What's my current score?** | `documentation/MAXIMUM_MARKS_ASSESSMENT.md` |
+| **What do I need to submit?** | `documentation/SUBMISSION_GUIDE.md` |
 | **How much time is left?** | `documentation/QUICK_REFERENCE_72_HOURS.md` |
+| **Where is a specific doc?** | `documentation/NAVIGATION_GUIDE.md` |
 
-### LLM & AI| **Where is a specific doc?** | `documentation/NAVIGATION_GUIDE.md` |
-
-- 🤖 **[LLM_SELECTION.md](documentation/LLM_SELECTION.md)** - LLM model selection
-
-- 💡 **[LLM_RECOMMENDATIONS.md](documentation/LLM_RECOMMENDATIONS.md)** - AI recommendations---
-
-- 🧠 **[LIGHTWEIGHT_LLM_GUIDE.md](documentation/LIGHTWEIGHT_LLM_GUIDE.md)** - Lightweight LLM setup
+---
 
 ## 📚 READ THESE IN ORDER
 
-### Docker & Deployment
-
-- 🐳 **[DOCKER_CONTAINERIZATION.md](documentation/DOCKER_CONTAINERIZATION.md)** - Docker setup### First Time (30 minutes)
-
-- 📦 **[CONTAINERIZATION_SUMMARY.md](documentation/CONTAINERIZATION_SUMMARY.md)** - Container overview
+### First Time (30 minutes)
 
 1. **This file** (5 min)
-
-### Testing2. `documentation/FINAL_ANSWER.md` (10 min)
-
-- ✅ **[TESTING_GUIDE.md](documentation/TESTING_GUIDE.md)** - Testing procedures3. `documentation/RUN_QUICK_REFERENCE.md` (5 min)
-
+2. `documentation/FINAL_ANSWER.md` (10 min)
+3. `documentation/RUN_QUICK_REFERENCE.md` (5 min)
 4. `documentation/SETUP_COMPLETE.md` (10 min)
 
+### Then Run
+```bash
+./run.sh backend    # Terminal 1
+./run.sh frontend   # Terminal 2
+```
+
+### Then Code
+```
+Open: http://localhost:5173
+```
+
 ---
 
-### Then Run
+## 🎯 BY ROLE
 
-## 🎯 Quick Commands```bash
-
-./run.sh backend    # Terminal 1
-
-| Command | Purpose |./run.sh frontend   # Terminal 2
-
-|---------|---------|```
-
-| `./run.sh` | Start everything (backend + frontend) |
-
-| `curl http://localhost:8000/health` | Check backend |### Then Code
-
-| `curl -I http://localhost:5173` | Check frontend |```
-
-Open: http://localhost:5173
-
----```
-
-
-
-## 🌐 Access Points---
-
-
-
-- **Frontend:** http://localhost:5173 (🎨 Beautiful cosmic UI)## 🎯 BY ROLE
-
-- **Backend API:** http://localhost:8000 (📡 FastAPI)
-
-- **API Docs:** http://localhost:8000/docs (📚 Swagger UI)### Project Manager
-
+### Project Manager
 - `QUICK_REFERENCE_72_HOURS.md` - Timeline
-
----- `MAXIMUM_MARKS_ASSESSMENT.md` - Score tracking
-
+- `MAXIMUM_MARKS_ASSESSMENT.md` - Score tracking
 - `EXECUTION_CHECKLIST_3_DAYS.md` - Day-by-day plan
 
-## ✨ Features
-
 ### Frontend Developer  
+- `COSMOS_THEME_GUIDE.md` - UI components
+- `COSMOS_INTEGRATION_GUIDE.md` - How to use
+- `RUN_QUICK_REFERENCE.md` - Commands
 
-✅ **Orange + Purple Cosmic Theme** - Stunning dark mode UI  - `COSMOS_THEME_GUIDE.md` - UI components
-
-✅ **AI-Powered Analysis** - Using Ollama + Llama2  - `COSMOS_INTEGRATION_GUIDE.md` - How to use
-
-✅ **Company Rules Analyzer** - Compare ethical guidelines  - `RUN_QUICK_REFERENCE.md` - Commands
-
-✅ **One-Command Startup** - `./run.sh` does everything  
-
-✅ **Docker Support** - Full containerization  ### Backend Developer
-
-✅ **Beautiful Animations** - Glowing effects and smooth transitions  - `DATA_DICTIONARY.md` - Data schema
-
+### Backend Developer
+- `DATA_DICTIONARY.md` - Data schema
 - `IMPLEMENTATION_SUMMARY.md` - Technical details
+- `CONTAINERIZATION_SUMMARY.md` - Docker setup
 
----- `CONTAINERIZATION_SUMMARY.md` - Docker setup
-
-
-
-## 📖 Full Documentation Index### Data Scientist
-
+### Data Scientist
 - `DATA_DICTIONARY.md` - Data fields
-
-See **[documentation/README.md](documentation/README.md)** for complete documentation index.- `./run.sh process-all` - Run pipeline
-
+- `./run.sh process-all` - Run pipeline
 - `IMPLEMENTATION_SUMMARY.md` - Processing details
+
+### Everyone
+- `FINAL_ANSWER.md` - Project overview
+- `RUN_QUICK_REFERENCE.md` - How to run
+- `JOURNAL_TEMPLATE.md` - Your journal
 
 ---
 
-### Everyone
+## 🗺️ MASTER GUIDES
 
-## 🎉 You're All Set!- `FINAL_ANSWER.md` - Project overview
-
-- `RUN_QUICK_REFERENCE.md` - How to run
-
-```bash- `JOURNAL_TEMPLATE.md` - Your journal
-
-./run.sh
-
-```---
-
-
-
-Open http://localhost:5173 and enjoy your Apte application! 🚀✨## 🗺️ MASTER GUIDES
-
-
-
----### Complete Index
-
+### Complete Index
 👉 `documentation/README.md`
-
-**Last Updated:** 21 April 2026  - Full table of contents
-
-**Status:** 🟢 PRODUCTION READY- All 30 files organized
-
+- Full table of contents
+- All 30 files organized
 - Reading time estimates
 - Cross-references
 

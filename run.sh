@@ -187,19 +187,44 @@ else
     echo -e "${GREEN}✓ READY!${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo -e "${YELLOW}Start services in separate terminals:${NC}"
+    
+    # Auto-start backend in background
+    echo -e "${YELLOW}  • Starting backend server...${NC}"
+    cd "$BACKEND_DIR"
+    source .venv/bin/activate
+    python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload > /tmp/backend.log 2>&1 &
+    BACKEND_PID=$!
+    sleep 2
+    print_success "Backend started (PID: $BACKEND_PID)"
     echo ""
-    echo -e "${CYAN}  Terminal 1 (Backend):${NC}"
-    echo "    cd $BACKEND_DIR"
-    echo "    source .venv/bin/activate"
-    echo "    python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    
+    # Auto-start frontend in background
+    echo -e "${YELLOW}  • Starting frontend server...${NC}"
+    cd "$FRONTEND_DIR"
+    npm run dev > /tmp/frontend.log 2>&1 &
+    FRONTEND_PID=$!
+    sleep 3
+    print_success "Frontend started (PID: $FRONTEND_PID)"
     echo ""
-    echo -e "${CYAN}  Terminal 2 (Frontend):${NC}"
-    echo "    cd $FRONTEND_DIR"
-    echo "    npm run dev"
+    
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}✨ ALL SERVICES RUNNING!${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo -e "${YELLOW}Then open:${NC}"
-    echo -e "${GREEN}   http://localhost:5173${NC}"
+    echo -e "${YELLOW}🌐 Open in your browser:${NC}"
+    echo ""
+    echo -e "${GREEN}   Frontend:  http://localhost:5173${NC}"
+    echo -e "${GREEN}   API Docs:  http://localhost:8000/docs${NC}"
+    echo ""
+    echo -e "${YELLOW}📝 Logs:${NC}"
+    echo ""
+    echo "   Backend:   tail -f /tmp/backend.log"
+    echo "   Frontend:  tail -f /tmp/frontend.log"
+    echo ""
+    echo -e "${YELLOW}To stop services:${NC}"
+    echo ""
+    echo "   kill $BACKEND_PID  (backend)"
+    echo "   kill $FRONTEND_PID (frontend)"
     echo ""
 fi
 
