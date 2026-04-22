@@ -54,3 +54,36 @@ export interface CompanyPolicy {
   complianceScore: number
   lastUpdated: string
 }
+
+export interface Rating {
+  id: string
+  companyName: string
+  userId: string
+  userName: string
+  transparencyScore: number
+  fairnessScore: number
+  privacyScore: number
+  accountabilityScore: number
+  overallScore: number
+  comment: string
+  createdAt: string
+}
+
+export interface RatingAnalytics {
+  companyName: string
+  averageTransparency: number
+  averageFairness: number
+  averagePrivacy: number
+  averageAccountability: number
+  averageOverall: number
+  totalRatings: number
+}
+
+export interface DashboardSummary {
+  totalCompaniesRated: number
+  totalRatings: number
+  averageEthicsScore: number
+  mostRatedCompany: string
+  highestScoringCompany: string
+  analytics: RatingAnalytics[]
+}

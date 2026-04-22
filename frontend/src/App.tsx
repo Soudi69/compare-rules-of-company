@@ -6,6 +6,7 @@ import CompanySidebar from './components/CompanySidebar'
 import PolicyView from './components/PolicyView'
 import { analyzeCompanyRules } from './services/api'
 import type { AnalysisResult, Company } from './types'
+import RatingDashboard from './components/RatingDashboard'
 
 function App() {
   const { user, isAuthenticated, logout } = useAuth()
@@ -13,6 +14,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [activeView, setActiveView] = useState<'analysis' | 'ratings'>('analysis')
 
   const handleSelectCompany = async (company: Company) => {
     setSelectedCompany(company)
@@ -57,7 +59,30 @@ function App() {
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-600/20 to-purple-600/10 animate-pulse"></div>
                 <Sparkles className="w-6 h-6 text-amber-300 relative z-10 drop-shadow-lg" />
               </div>
-              
+              {/* Navigation tabs */}
+<div className="flex gap-2 ml-6">
+  <button
+    onClick={() => setActiveView('analysis')}
+    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+      activeView === 'analysis'
+        ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+        : 'text-amber-200/50 hover:text-amber-200'
+    }`}
+  >
+    🔍 Analysis
+  </button>
+  <button
+    onClick={() => setActiveView('ratings')}
+    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+      activeView === 'ratings'
+        ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+        : 'text-amber-200/50 hover:text-amber-200'
+    }`}
+  >
+    ⭐ Ratings
+  </button>
+</div>
+
               <div>
                 <h1 className="text-2xl font-black bg-gradient-to-r from-amber-300 via-orange-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg">
                   ✨ Apte
@@ -105,53 +130,65 @@ function App() {
           />
         </div>
 
-        {/* Right Content - Policy Details */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {error && (
-              <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
-                <div className="flex items-start space-x-3">
-                  <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-200 font-semibold">{error}</p>
-                </div>
-              </div>
-            )}
+{/* Right Content */}
+<div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            {selectedCompany && analysis && (
-              <div className="animate-fade-in">
-                <PolicyView analysis={analysis} isLoading={isLoading} />
-              </div>
-            )}
-
-            {!selectedCompany && !analysis && !isLoading && !error && (
-              <div className="flex items-center justify-center h-96">
-                <div className="text-center max-w-md">
-                  {/* Cosmic animation container */}
-                  <div className="relative p-8 mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="relative flex items-center justify-center space-x-2">
-                      <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
-                      <Globe className="w-10 h-10 text-orange-400 animate-float" />
-                      <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" style={{ animationDirection: 'reverse' }} />
-                    </div>
-                  </div>
-                  
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
-                    Welcome to Apte
-                  </h2>
-                  <p className="text-amber-200/80 mb-4 leading-relaxed">
-                    Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
-                  </p>
-                  <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
-                    Select a company to begin →
-                  </p>
-                </div>
-              </div>
-            )}
+    {activeView === 'analysis' ? (
+      <>
+        {error && (
+          <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
+            <div className="flex items-start space-x-3">
+              <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-red-200 font-semibold">{error}</p>
+            </div>
           </div>
+        )}
+
+        {selectedCompany && analysis && (
+          <div className="animate-fade-in">
+            <PolicyView analysis={analysis} isLoading={isLoading} />
+          </div>
+        )}
+
+        {!selectedCompany && !analysis && !isLoading && !error && (
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center max-w-md">
+
+              <div className="relative p-8 mb-6">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
+                <div className="relative flex items-center justify-center space-x-2">
+                  <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
+                  <Globe className="w-10 h-10 text-orange-400 animate-float" />
+                  <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
+                Welcome to Apte
+              </h2>
+
+              <p className="text-amber-200/80 mb-4 leading-relaxed">
+                Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
+              </p>
+
+              <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
+                Select a company to begin →
+              </p>
+
+            </div>
+          </div>
+        )}
+      </>
+     ) : (
+               <div className="animate-fade-in">
+          <RatingDashboard />
         </div>
+      )}
+            </div>
       </div>
     </div>
+  </div>
   )
 }
 

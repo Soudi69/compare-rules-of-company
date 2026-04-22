@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from services.llm_service import LLMService
 from services.analysis_service import AnalysisService
+from services.rating_services import RatingService
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ app.add_middleware(
 # Initialize services
 llm_service = LLMService()
 analysis_service = AnalysisService(llm_service)
+rating_service = RatingService()
 
 # Models
 class AnalyzeRequest(BaseModel):
@@ -77,6 +79,81 @@ async def root():
         }
     }
 
+# ── Rating Models ──────────────────────────────────────────────────
+
+class RatingRequest(BaseModel):
+    company_name: str
+    user_id: str
+    user_name: str
+    transparency_score: int
+    fairness_score: int
+    privacy_score: int
+    accountability_score: int
+    comment: str = ""
+
+# ── Rating Routes ──────────────────────────────────────────────────
+
+@app.post("/ratings")
+async def submit_rating(request: RatingRequest):
+    """Submit a rating for a company"""
+    try:
+        # Validate scores are between 1-10
+        scores = [
+            request.transparency_score,
+            request.fairness_score,
+            request.privacy_score,
+            request.accountability_score
+        ]
+        for score in scores:
+            if not 1 <= score <= 10:
+                raise HTTPException(
+                    status_code=400,
+                    detail="All scores must be between 1 and 10"
+                )
+        
+        result = rating_service.add_rating(
+            company_name=request.company_name,
+            user_id=request.user_id,
+            user_name=request.user_name,
+            transparency_score=request.transparency_score,
+            fairness_score=request.fairness_score,
+            privacy_score=request.privacy_score,
+            accountability_score=request.accountability_score,
+            comment=request.comment
+        )
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error submitting rating: {str(e)}"
+        )
+
+@app.get("/ratings/{company_name}")
+async def get_company_ratings(company_name: str):
+    """Get all ratings for a company"""
+    try:
+        ratings = rating_service.get_company_ratings(company_name)
+        return ratings
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching ratings: {str(e)}"
+        )
+
+@app.get("/ratings/analytics/summary")
+async def get_dashboard_summary():
+    """Get full dashboard analytics summary"""
+    try:
+        summary = rating_service.get_dashboard_summary()
+        return summary
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching dashboard: {str(e)}"
+        )
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
