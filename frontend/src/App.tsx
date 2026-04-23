@@ -1,18 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, LogOut, Star, Zap, Globe } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import LoginScreen from './components/LoginScreen'
 import CompanySidebar from './components/CompanySidebar'
 import PolicyView from './components/PolicyView'
-import { analyzeCompanyRules } from './services/api'
-import type { AnalysisResult, Company } from './types'
+import { analyzeCompanyRules, createSession } from './services/api'
+import type { AnalysisResult, Company, Session } from './types'
+import ComparisonDashboard from './components/ComparisonDashboard'
 
 function App() {
   const { user, isAuthenticated, logout } = useAuth()
+  const [activeTab, setActiveTab] = useState<'single' | 'compare'>('single')
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+
+  // Initialize session
+  useEffect(() => {
+    if (isAuthenticated) {
+      createSession(user?.id).then(setSession).catch(console.error)
+    }
+  }, [isAuthenticated, user?.id])
 
   const handleSelectCompany = async (company: Company) => {
     setSelectedCompany(company)
@@ -90,66 +100,99 @@ function App() {
               </button>
             </div>
           </div>
+
+          {/* Navigation Tabs */}
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            <button
+              onClick={() => setActiveTab('single')}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                activeTab === 'single'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-dark-900 shadow-lg shadow-orange-500/20'
+                  : 'bg-dark-800/50 text-gray-400 hover:text-white border border-dark-600 hover:border-dark-400'
+              }`}
+            >
+              Single Analysis
+            </button>
+            <button
+              onClick={() => setActiveTab('compare')}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                activeTab === 'compare'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/20'
+                  : 'bg-dark-800/50 text-gray-400 hover:text-white border border-dark-600 hover:border-dark-400'
+              }`}
+            >
+              Side-by-Side Compare
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative z-10">
-        {/* Left Sidebar - Companies */}
-        <div className="w-80 border-r border-gradient-to-b from-orange-900/30 to-purple-900/20 bg-gradient-to-b from-dark-900/50 to-dark-900/20 backdrop-blur-sm overflow-hidden">
-          <CompanySidebar
-            companies={[]}
-            selectedCompany={selectedCompany}
-            onSelectCompany={handleSelectCompany}
-            isLoading={isLoading}
-          />
-        </div>
+        
+        {activeTab === 'single' ? (
+          <>
+            {/* Left Sidebar - Companies */}
+            <div className="w-80 border-r border-gradient-to-b from-orange-900/30 to-purple-900/20 bg-gradient-to-b from-dark-900/50 to-dark-900/20 backdrop-blur-sm overflow-hidden flex flex-col">
+              <CompanySidebar
+                companies={[]}
+                selectedCompany={selectedCompany}
+                onSelectCompany={handleSelectCompany}
+                isLoading={isLoading}
+              />
+            </div>
 
-        {/* Right Content - Policy Details */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {error && (
-              <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
-                <div className="flex items-start space-x-3">
-                  <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-200 font-semibold">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {selectedCompany && analysis && (
-              <div className="animate-fade-in">
-                <PolicyView analysis={analysis} isLoading={isLoading} />
-              </div>
-            )}
-
-            {!selectedCompany && !analysis && !isLoading && !error && (
-              <div className="flex items-center justify-center h-96">
-                <div className="text-center max-w-md">
-                  {/* Cosmic animation container */}
-                  <div className="relative p-8 mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
-                    <div className="relative flex items-center justify-center space-x-2">
-                      <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
-                      <Globe className="w-10 h-10 text-orange-400 animate-float" />
-                      <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" style={{ animationDirection: 'reverse' }} />
+            {/* Right Content - Policy Details */}
+            <div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {error && (
+                  <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
+                    <div className="flex items-start space-x-3">
+                      <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-red-200 font-semibold">{error}</p>
                     </div>
                   </div>
-                  
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
-                    Welcome to Apte
-                  </h2>
-                  <p className="text-amber-200/80 mb-4 leading-relaxed">
-                    Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
-                  </p>
-                  <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
-                    Select a company to begin →
-                  </p>
-                </div>
+                )}
+
+                {selectedCompany && analysis && (
+                  <div className="animate-fade-in">
+                    <PolicyView analysis={analysis} isLoading={isLoading} />
+                  </div>
+                )}
+
+                {!selectedCompany && !analysis && !isLoading && !error && (
+                  <div className="flex items-center justify-center h-96">
+                    <div className="text-center max-w-md">
+                      {/* Cosmic animation container */}
+                      <div className="relative p-8 mb-6">
+                        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
+                        <div className="relative flex items-center justify-center space-x-2">
+                          <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
+                          <Globe className="w-10 h-10 text-orange-400 animate-float" />
+                          <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" style={{ animationDirection: 'reverse' }} />
+                        </div>
+                      </div>
+                      
+                      <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
+                        Welcome to Apte
+                      </h2>
+                      <p className="text-amber-200/80 mb-4 leading-relaxed">
+                        Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
+                      </p>
+                      <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
+                        Select a company to begin →
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 w-full bg-gradient-to-b from-dark-900/30 to-dark-900/10">
+            <ComparisonDashboard sessionId={session?.id} />
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
