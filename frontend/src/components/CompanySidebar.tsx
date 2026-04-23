@@ -13,14 +13,6 @@ interface CompanySidebarProps {
 const MOCK_COMPANIES: Company[] = [
   {
     id: '1',
-    name: 'OpenAI',
-    ticker: 'MSFT',
-    industry: 'AI & Tech',
-    founded: 2015,
-    description: 'AI research and deployment company',
-  },
-  {
-    id: '2',
     name: 'Google',
     ticker: 'GOOGL',
     industry: 'Tech & AI',
@@ -28,7 +20,7 @@ const MOCK_COMPANIES: Company[] = [
     description: 'Search, AI, and cloud services',
   },
   {
-    id: '3',
+    id: '2',
     name: 'Microsoft',
     ticker: 'MSFT',
     industry: 'Tech & AI',
@@ -36,20 +28,28 @@ const MOCK_COMPANIES: Company[] = [
     description: 'Software and AI platform leader',
   },
   {
-    id: '4',
-    name: 'Meta',
-    ticker: 'META',
-    industry: 'Social Media & AI',
-    founded: 2004,
-    description: 'Social platform with AI focus',
+    id: '3',
+    name: 'IBM',
+    ticker: 'IBM',
+    industry: 'Enterprise AI',
+    founded: 1911,
+    description: 'Enterprise AI and responsible innovation',
   },
   {
-    id: '5',
+    id: '4',
     name: 'Amazon',
     ticker: 'AMZN',
     industry: 'E-commerce & Cloud',
     founded: 1994,
     description: 'Cloud services and AI applications',
+  },
+  {
+    id: '5',
+    name: 'Meta',
+    ticker: 'META',
+    industry: 'Social Media & AI',
+    founded: 2004,
+    description: 'Social platform with AI focus',
   },
   {
     id: '6',
@@ -58,6 +58,14 @@ const MOCK_COMPANIES: Company[] = [
     industry: 'Consumer Tech',
     founded: 1976,
     description: 'Consumer electronics and AI',
+  },
+  {
+    id: '7',
+    name: 'Tesla',
+    ticker: 'TSLA',
+    industry: 'Autonomous Vehicles',
+    founded: 2003,
+    description: 'EV and autonomous driving innovation',
   },
 ]
 
