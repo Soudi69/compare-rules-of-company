@@ -47,6 +47,44 @@ print_error() {
 }
 
 ################################################################################
+# CLEANUP EXISTING PROCESSES
+################################################################################
+
+cleanup_existing_processes() {
+    print_step "Checking for existing processes..."
+    
+    # Kill any existing process on port 8000 (backend)
+    if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        print_warning "Found existing process on port 8000, killing it..."
+        lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    
+    # Kill any existing process on port 5173 (frontend)
+    if lsof -Pi :5173 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        print_warning "Found existing process on port 5173, killing it..."
+        lsof -ti:5173 | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    
+    # Kill any existing backend/frontend node processes
+    if pgrep -f "uvicorn main:app" > /dev/null; then
+        print_warning "Found existing Uvicorn process, killing it..."
+        pkill -f "uvicorn main:app" 2>/dev/null || true
+        sleep 1
+    fi
+    
+    if pgrep -f "npm run dev" > /dev/null; then
+        print_warning "Found existing npm dev process, killing it..."
+        pkill -f "npm run dev" 2>/dev/null || true
+        sleep 1
+    fi
+    
+    print_success "Cleanup complete"
+    echo ""
+}
+
+################################################################################
 # MAIN SCRIPT
 ################################################################################
 
@@ -154,7 +192,8 @@ else
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
-    # Setup backend
+    # Kill any existing processes
+    cleanup_existing_processes
     echo -e "${YELLOW}  • Setting up backend...${NC}"
     cd "$BACKEND_DIR"
     
