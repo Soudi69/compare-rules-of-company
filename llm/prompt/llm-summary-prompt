@@ -1,0 +1,32 @@
+You will be given a dataset containing AI policies from a company over time.
+Read through all the policies carefully.
+
+Your task is to show how the company’s AI policies changed over time.
+Focus only on the following five areas. For each area, list what the policy says at each point in time, and then explain what changed.
+
+Areas to focus on:
+
+User rights and consent mechanisms
+(e.g., Can users see, fix, or delete their data? Do they have to actively say "yes" to data collection?)
+
+Data collection and storage
+(e.g., What data is collected? Where is it stored? For how long?)
+
+Third-party sharing arrangements
+(e.g., Does the company share user data with other companies or services?)
+
+Automatic updates or changes to terms
+(e.g., Can the company change the policy without telling users? Do users have to agree to updates automatically?)
+
+Behavioural profiling permissions
+(e.g., Does the company track user behavior to build profiles? Can users turn this off?)
+
+Instructions for your answer:
+
+Use bullet points for clarity.
+
+Write in plain English, at an 8th grade reading level.
+
+Do not leave out any clause that affects user privacy.
+
+Show the timeline of changes clearly (e.g., "In 2022, policy said X. In 2024, policy changed to Y.").

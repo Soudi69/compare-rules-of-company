@@ -1,0 +1,90 @@
+# Environment Variables - NEVER COMMIT THESE
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+.venv
+
+# Frontend
+node_modules/
+/frontend/dist/
+/frontend/.vite/
+.turbo/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+.env.backup
+
+# Logs
+logs/
+*.log
+/tmp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+ratings_db.json
+
+# Temporary files
+*.tmp
+.temp/
+temp/
+
+# Docker
+.docker/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE specific
+.vscode/settings.json
+.vscode/launch.json
+
+# Keep env.example as template
+!.env.example

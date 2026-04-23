@@ -34,10 +34,6 @@ analysis_service = AnalysisService(llm_service)
 baseline_service = BaselineService()
 session_service = SessionService()
 
-# ──────────────────────────────────────────────────────────
-# Request Models
-# ──────────────────────────────────────────────────────────
-
 class AnalyzeRequest(BaseModel):
     company_name: str
 
@@ -48,11 +44,45 @@ class CompareRequest(BaseModel):
 # ──────────────────────────────────────────────────────────
 # Original Routes
 # ──────────────────────────────────────────────────────────
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "message": "AI Rules Analyzer is running"}
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    """
+    Chat with the LLM about AI ethics and policies
+    
+    Args:
+        request: ChatRequest containing user message and optional context
+        
+    Returns:
+        ChatResponse with LLM response
+    """
+    try:
+        if not request.message or not request.message.strip():
+            raise HTTPException(status_code=400, detail="Message is required")
+        
+        # Build the prompt with context if provided
+        prompt = request.message
+        if request.context:
+            prompt = f"Context: {request.context}\n\nUser Query: {request.message}"
+        
+        # Generate response from LLM
+        response = llm_service.generate(prompt, max_tokens=1000)
+        
+        return ChatResponse(
+            response=response,
+            message=request.message
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing chat: {str(e)}"
+        )
 
 @app.post("/analyze")
 async def analyze_company(request: AnalyzeRequest):
@@ -97,6 +127,7 @@ async def root():
         }
     }
 
+<<<<<<< HEAD
 # ──────────────────────────────────────────────────────────
 # Person 4: Baseline Comparison Routes
 # ──────────────────────────────────────────────────────────
@@ -246,7 +277,6 @@ async def reset_session(session_id: str):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     return session
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
