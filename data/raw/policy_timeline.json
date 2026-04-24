@@ -1,0 +1,47 @@
+[
+  {
+    "id": "change_1",
+    "company_id": "company_1",
+    "date": "2024-01-15",
+    "version_old": "1.0",
+    "version_new": "1.5",
+    "change_category": "safety_enhancement",
+    "summary": "Added explicit red-teaming protocols"
+  },
+  {
+    "id": "change_2",
+    "company_id": "company_1",
+    "date": "2025-06-15",
+    "version_old": "1.5",
+    "version_new": "2.1",
+    "change_category": "scope_expansion",
+    "summary": "Expanded to cover multimodal systems"
+  },
+  {
+    "id": "change_3",
+    "company_id": "company_2",
+    "date": "2023-09-01",
+    "version_old": "2.0",
+    "version_new": "2.5",
+    "change_category": "compliance_add",
+    "summary": "Added EU AI Act alignment"
+  },
+  {
+    "id": "change_4",
+    "company_id": "company_2",
+    "date": "2025-08-20",
+    "version_old": "2.5",
+    "version_new": "3.0",
+    "change_category": "scope_expansion",
+    "summary": "Comprehensive overhaul with supply chain governance"
+  },
+  {
+    "id": "change_5",
+    "company_id": "company_3",
+    "date": "2024-03-10",
+    "version_old": "1.0",
+    "version_new": "2.0",
+    "change_category": "policy_hardening",
+    "summary": "Stricter fairness and bias testing requirements"
+  }
+]
