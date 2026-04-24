@@ -12,6 +12,7 @@ from models.session import SessionCreateRequest, SessionUpdateRequest
 
 load_dotenv()
 
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Apte - AI Principle Tracker Ethos",
