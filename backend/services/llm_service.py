@@ -4,66 +4,37 @@ import requests
 from typing import Optional
 from abc import ABC, abstractmethod
 
+
 class LLMProvider(ABC):
     """Abstract base class for LLM providers"""
-    
+
     @abstractmethod
     def generate(self, prompt: str, max_tokens: int = 2000) -> str:
         """Generate text based on prompt"""
         pass
 
-class OllamaProvider(LLMProvider):
-    """Ollama LLM Provider"""
-    
-    def __init__(self, model: str = "llama2", base_url: str = "http://localhost:11434"):
-        self.model = model
-        self.base_url = base_url
-    
-    def generate(self, prompt: str, max_tokens: int = 2000) -> str:
-        """Generate text using Ollama"""
-        try:
-            response = requests.post(
-                f"{self.base_url}/api/generate",
-                json={
-                    "model": self.model,
-                    "prompt": prompt,
-                    "stream": False,
-                    "num_predict": max_tokens,
-                    "temperature": 0.7,
-                },
-                timeout=120
-            )
-            response.raise_for_status()
-            return response.json()["response"]
-        except requests.exceptions.ConnectionError:
-            raise RuntimeError(
-                f"Could not connect to Ollama at {self.base_url}. "
-                "Make sure Ollama is running with: ollama serve"
-            )
-        except Exception as e:
-            raise RuntimeError(f"Error generating with Ollama: {str(e)}")
 
 class AzureOpenAIProvider(LLMProvider):
     """Azure OpenAI LLM Provider"""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  endpoint: Optional[str] = None,
                  api_key: Optional[str] = None,
                  model: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
         self.api_key = api_key or os.getenv("AZURE_OPENAI_API_KEY")
         self.model = model or os.getenv("AZURE_OPENAI_MODEL")
-        
+
         if not all([self.endpoint, self.api_key, self.model]):
             raise ValueError(
                 "Azure OpenAI requires AZURE_OPENAI_ENDPOINT, "
                 "AZURE_OPENAI_API_KEY, and AZURE_OPENAI_MODEL environment variables"
             )
-        
+
         # Ensure endpoint has trailing slash
         if not self.endpoint.endswith('/'):
             self.endpoint += '/'
-    
+
     def generate(self, prompt: str, max_tokens: int = 2000) -> str:
         """Generate text using Azure OpenAI"""
         try:
@@ -71,22 +42,24 @@ class AzureOpenAIProvider(LLMProvider):
                 "api-key": self.api_key,
                 "Content-Type": "application/json",
             }
-            
+            # Allow overriding the API version via env var if the user set a newer version
+            api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
+
+            # Azure expects 'max_completion_tokens' for some newer models/deployments
             data = {
                 "messages": [
                     {"role": "system", "content": "You are a helpful AI assistant analyzing corporate AI policies and ethics."},
                     {"role": "user", "content": prompt}
                 ],
-                "max_tokens": max_tokens,
-                "temperature": 0.7,
+                "max_completion_tokens": max_tokens,
             }
-            
+
             # Azure OpenAI expects: https://<resource-name>.openai.azure.com/openai/deployments/<deployment-name>/chat/completions
-            url = f"{self.endpoint}openai/deployments/{self.model}/chat/completions?api-version=2024-02-15-preview"
-            
+            url = f"{self.endpoint}openai/deployments/{self.model}/chat/completions?api-version={api_version}"
+
             response = requests.post(url, headers=headers, json=data, timeout=120)
             response.raise_for_status()
-            
+
             result = response.json()
             return result["choices"][0]["message"]["content"]
         except requests.exceptions.ConnectionError:
@@ -104,63 +77,65 @@ class AzureOpenAIProvider(LLMProvider):
         except Exception as e:
             raise RuntimeError(f"Error generating with Azure OpenAI: {str(e)}")
 
+
 class MockLLMProvider(LLMProvider):
-    """Mock LLM Provider for testing"""
-    
+    """Mock LLM Provider for testing and lightweight development"""
+
     def generate(self, prompt: str, max_tokens: int = 2000) -> str:
         """Generate mock response"""
-        # This is a placeholder - will be used if Ollama is not available
+        # Lightweight mock response used in development when no external LLM is configured
         return json.dumps({
-            "overallSummary": "This is a mock response. Please run Ollama to get real analysis.",
+            "overallSummary": "This is a mock response. Real LLM analysis is disabled.",
             "keyPoints": [
-                "Mock response - actual analysis requires Ollama",
-                "Please ensure Ollama is running with llama2 model"
+                "Mock response - LLM provider not configured",
+                "Enable Azure OpenAI and set LLM_PROVIDER=azure_openai to use a real service"
             ],
-            "redFlags": [
-                {
-                    "title": "Mock Red Flag",
-                    "description": "This is a mock response",
-                    "severity": "medium"
-                }
-            ],
+            "redFlags": [],
             "timelineChanges": [],
             "recommendations": []
         })
 
+
 class LLMService:
-    """Service for LLM operations"""
-    
+    """Service for LLM operations. Defaults to a fast Mock provider for development.
+
+    Use environment variable LLM_PROVIDER to change behaviour:
+      - "mock" (default) : fast local mock provider
+      - "azure_openai"  : use Azure OpenAI (requires AZURE_OPENAI_* env vars)
+    """
+
     def __init__(self, provider: Optional[LLMProvider] = None):
         if provider is None:
-            provider_type = os.getenv("LLM_PROVIDER", "ollama").lower()
-            
+            provider_type = os.getenv("LLM_PROVIDER", "mock").lower()
+
             if provider_type == "azure_openai":
                 try:
                     provider = AzureOpenAIProvider()
-                    # Test connection
-                    provider.generate("Hello", max_tokens=10)
                 except Exception as e:
-                    print(f"Warning: Azure OpenAI not available: {e}")
-                    print("Falling back to Ollama...")
-                    try:
-                        provider = OllamaProvider()
-                        provider.generate("test", max_tokens=10)
-                    except Exception:
-                        print("Warning: Ollama not available, using mock provider")
-                        provider = MockLLMProvider()
-            else:
-                # Try Ollama first, fall back to mock
-                try:
-                    provider = OllamaProvider()
-                    # Test connection
-                    provider.generate("test", max_tokens=10)
-                except Exception:
-                    print("Warning: Ollama not available, using mock provider")
+                    print(f"Warning: Azure OpenAI not available or misconfigured: {e}")
+                    print("Falling back to MockLLMProvider...")
                     provider = MockLLMProvider()
-        
+            else:
+                provider = MockLLMProvider()
+
         self.provider = provider
-    
+
     def generate(self, prompt: str, max_tokens: int = 2000) -> str:
-        """Generate text using the LLM provider"""
+        """Generate text using the configured LLM provider"""
         return self.provider.generate(prompt, max_tokens)
+
+    @staticmethod
+    def create_provider(provider_name: str) -> LLMProvider:
+        """Factory to create a provider instance by name.
+
+        Supported names: 'mock', 'azure_openai'
+        Raises ValueError for unknown provider or missing configuration.
+        """
+        name = (provider_name or "mock").lower()
+        if name == "mock":
+            return MockLLMProvider()
+        if name == "azure_openai":
+            # May raise ValueError if env vars missing
+            return AzureOpenAIProvider()
+        raise ValueError(f"Unsupported LLM provider: {provider_name}")
 

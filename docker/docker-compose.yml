@@ -1,29 +1,6 @@
 version: '3.8'
 
 services:
-  # Ollama service for LLM - using lightweight Mistral model
-  ollama:
-    image: ollama/ollama:latest
-    container_name: apte-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_HOST=0.0.0.0:11434
-      - OLLAMA_KEEP_ALIVE=24h
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    networks:
-      - apte-network
-    restart: unless-stopped
-    # Note: First run will download Mistral (4.1GB, ~20 min)
-    # Subsequent runs will use cached model
-
   # Backend API service
   backend:
     build:
@@ -33,12 +10,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - OLLAMA_MODEL=mistral
       - LOG_LEVEL=INFO
-    depends_on:
-      ollama:
-        condition: service_healthy
+      - LOG_LEVEL=INFO
+    # If you want to use a local Ollama LLM, add a service named `ollama` and
+    # uncomment a depends_on entry here. By default we run backend without Ollama.
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -73,9 +48,7 @@ services:
       - VITE_API_URL=http://localhost:8000
 
 # Named volume for Ollama data persistence
-volumes:
-  ollama_data:
-    driver: local
+volumes: {}
 
 # Custom network for service communication
 networks:

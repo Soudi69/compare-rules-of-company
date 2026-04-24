@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -53,7 +53,7 @@ async def health_check():
     return {"status": "ok", "message": "AI Rules Analyzer is running"}
 
 @app.post("/chat")
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, provider: str | None = Query(None, description="Optional LLM provider to use for this request (e.g. 'azure_openai' or 'mock')")):
     """
     Chat with the LLM about AI ethics and policies
     
@@ -71,9 +71,53 @@ async def chat(request: ChatRequest):
         prompt = request.message
         if request.context:
             prompt = f"Context: {request.context}\n\nUser Query: {request.message}"
+
+        # Default canned question/answer mapping. If the user's message matches a key (case-insensitive,
+        # stripped), return the canned answer immediately as JSON. This allows predictable QA for common
+        # help or demo queries without calling the external LLM.
+        DEFAULT_QA = {
+            "what are the main ai ethics risks?": "Bias and discrimination; lack of transparency; privacy violations; security and misuse; accountability gaps; safety and reliability; labor/economic impact; manipulation/misinformation; environmental costs; concentration of power.",
+            "how do i improve ai transparency?": "Document datasets and model decisions, provide model cards and explainability tools, enable audits, and publish governance processes and audit trails.",
+            "what is your privacy policy?": "This is a demo service; no user data is stored persistently by default. For production, consult the project's privacy guidelines and set up secure data handling and retention policies.",
+        }
+
+        key = request.message.strip().lower()
+        if key in DEFAULT_QA:
+            return ChatResponse(response=DEFAULT_QA[key], message=request.message)
+
+        # Greeting detection: if the message starts with a hello-like word followed by a name,
+        # return a friendly personalized greeting without calling the LLM.
+        # Examples matched: "hello Alice", "hi bob", "hey Dr. Smith" -> uses first name token.
+        tokens = request.message.strip().split()
+        if len(tokens) >= 2:
+            first_word = tokens[0].lower().strip()
+            if first_word in ("hello", "hi", "hey"):
+                # extract a simple firstname token (strip punctuation)
+                raw_name = tokens[1]
+                # keep only letters and common name chars
+                import re
+                m = re.match(r"([A-Za-z'-]+)", raw_name)
+                if m:
+                    firstname = m.group(1)
+                else:
+                    firstname = raw_name
+
+                greeting = f"Hey {firstname}, How are you doing today"
+                return ChatResponse(response=greeting, message=request.message)
         
-        # Generate response from LLM
-        response = llm_service.generate(prompt, max_tokens=1000)
+        # If a provider query param is provided, try to use a provider just for this request
+        if provider:
+            try:
+                temp_provider = LLMService.create_provider(provider)
+            except ValueError as e:
+                # configuration missing or unknown provider
+                raise HTTPException(status_code=400, detail=str(e))
+
+            # use temp provider directly
+            response = temp_provider.generate(prompt, max_tokens=1000)
+        else:
+            # Generate response from default LLM service (app-wide)
+            response = llm_service.generate(prompt, max_tokens=1000)
         
         return ChatResponse(
             response=response,
