@@ -1,0 +1,6 @@
+id,company_id,title,version,publish_date,summary,key_topics,compliance_score
+policy_1,company_1,OpenAI AI Safety & Ethics Policy,2.1,2025-06-15,Comprehensive framework for safe and beneficial AI development,"['safety', 'alignment', 'transparency', 'bias_mitigation']",92
+policy_2,company_2,Google Responsible AI Principles,3.0,2025-08-20,"Principles for AI that is beneficial, accountable, and human-centered","['accountability', 'fairness', 'privacy', 'security']",88
+policy_3,company_3,Microsoft AI Ethics & Governance,2.0,2025-05-10,Framework ensuring responsible AI deployment,"['transparency', 'fairness', 'accountability', 'security']",85
+policy_4,company_4,Meta's AI Research Ethics,1.5,2025-07-01,Ethical guidelines for AI research and deployment,"['privacy', 'fairness', 'transparency']",78
+policy_5,company_5,IBM Enterprise AI Ethics Framework,2.3,2025-04-15,Enterprise-grade AI governance and ethics,"['governance', 'compliance', 'audit', 'fairness']",81

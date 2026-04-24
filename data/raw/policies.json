@@ -1,0 +1,76 @@
+[
+  {
+    "id": "policy_1",
+    "company_id": "company_1",
+    "title": "OpenAI AI Safety & Ethics Policy",
+    "version": "2.1",
+    "publish_date": "2025-06-15",
+    "summary": "Comprehensive framework for safe and beneficial AI development",
+    "key_topics": [
+      "safety",
+      "alignment",
+      "transparency",
+      "bias_mitigation"
+    ],
+    "compliance_score": 92
+  },
+  {
+    "id": "policy_2",
+    "company_id": "company_2",
+    "title": "Google Responsible AI Principles",
+    "version": "3.0",
+    "publish_date": "2025-08-20",
+    "summary": "Principles for AI that is beneficial, accountable, and human-centered",
+    "key_topics": [
+      "accountability",
+      "fairness",
+      "privacy",
+      "security"
+    ],
+    "compliance_score": 88
+  },
+  {
+    "id": "policy_3",
+    "company_id": "company_3",
+    "title": "Microsoft AI Ethics & Governance",
+    "version": "2.0",
+    "publish_date": "2025-05-10",
+    "summary": "Framework ensuring responsible AI deployment",
+    "key_topics": [
+      "transparency",
+      "fairness",
+      "accountability",
+      "security"
+    ],
+    "compliance_score": 85
+  },
+  {
+    "id": "policy_4",
+    "company_id": "company_4",
+    "title": "Meta's AI Research Ethics",
+    "version": "1.5",
+    "publish_date": "2025-07-01",
+    "summary": "Ethical guidelines for AI research and deployment",
+    "key_topics": [
+      "privacy",
+      "fairness",
+      "transparency"
+    ],
+    "compliance_score": 78
+  },
+  {
+    "id": "policy_5",
+    "company_id": "company_5",
+    "title": "IBM Enterprise AI Ethics Framework",
+    "version": "2.3",
+    "publish_date": "2025-04-15",
+    "summary": "Enterprise-grade AI governance and ethics",
+    "key_topics": [
+      "governance",
+      "compliance",
+      "audit",
+      "fairness"
+    ],
+    "compliance_score": 81
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "company_1",
+    "name": "OpenAI",
+    "industry": "AI/Technology",
+    "country": "US",
+    "employees": 500,
+    "founded": 2015,
+    "sector_code": "J62"
+  },
+  {
+    "id": "company_2",
+    "name": "Google",
+    "industry": "Tech/Search",
+    "country": "US",
+    "employees": 190000,
+    "founded": 1998,
+    "sector_code": "J62"
+  },
+  {
+    "id": "company_3",
+    "name": "Microsoft",
+    "industry": "Enterprise Software",
+    "country": "US",
+    "employees": 221000,
+    "founded": 1975,
+    "sector_code": "J62"
+  },
+  {
+    "id": "company_4",
+    "name": "Meta",
+    "industry": "Social Media/AI",
+    "country": "US",
+    "employees": 67000,
+    "founded": 2004,
+    "sector_code": "J63"
+  },
+  {
+    "id": "company_5",
+    "name": "IBM",
+    "industry": "Enterprise AI",
+    "country": "US",
+    "employees": 282000,
+    "founded": 1911,
+    "sector_code": "J62"
+  }
+]

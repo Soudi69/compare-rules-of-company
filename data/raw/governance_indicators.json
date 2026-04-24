@@ -1,0 +1,42 @@
+[
+  {
+    "country": "US",
+    "year": 2023,
+    "regulatory_quality": 1.42,
+    "rule_of_law": 1.5,
+    "control_corruption": 1.33,
+    "ai_regulation_index": 65
+  },
+  {
+    "country": "US",
+    "year": 2024,
+    "regulatory_quality": 1.38,
+    "rule_of_law": 1.45,
+    "control_corruption": 1.3,
+    "ai_regulation_index": 68
+  },
+  {
+    "country": "EU",
+    "year": 2023,
+    "regulatory_quality": 1.65,
+    "rule_of_law": 1.72,
+    "control_corruption": 1.55,
+    "ai_regulation_index": 82
+  },
+  {
+    "country": "EU",
+    "year": 2024,
+    "regulatory_quality": 1.7,
+    "rule_of_law": 1.75,
+    "control_corruption": 1.6,
+    "ai_regulation_index": 88
+  },
+  {
+    "country": "UK",
+    "year": 2023,
+    "regulatory_quality": 1.55,
+    "rule_of_law": 1.6,
+    "control_corruption": 1.45,
+    "ai_regulation_index": 72
+  }
+]

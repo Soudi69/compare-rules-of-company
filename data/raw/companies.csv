@@ -1,0 +1,6 @@
+id,name,industry,country,employees,founded,sector_code
+company_1,OpenAI,AI/Technology,US,500,2015,J62
+company_2,Google,Tech/Search,US,190000,1998,J62
+company_3,Microsoft,Enterprise Software,US,221000,1975,J62
+company_4,Meta,Social Media/AI,US,67000,2004,J63
+company_5,IBM,Enterprise AI,US,282000,1911,J62
