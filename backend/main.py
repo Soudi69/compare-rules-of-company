@@ -1,17 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
 import os
 from dotenv import load_dotenv
 from services.llm_service import LLMService
 from services.analysis_service import AnalysisService
-from services.baseline_service import BaselineService
-from services.session_service import SessionService
-from models.session import SessionCreateRequest, SessionUpdateRequest
+from services.rating_services import RatingService
+from services.ethics_service import EthicsDataService
+from services.synthetic_data_service import SyntheticDataService
 
 load_dotenv()
-
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -32,26 +30,30 @@ app.add_middleware(
 # Initialize services
 llm_service = LLMService()
 analysis_service = AnalysisService(llm_service)
-baseline_service = BaselineService()
-session_service = SessionService()
+rating_service = RatingService()
+ethics_service = EthicsDataService()
+synthetic_data_service = SyntheticDataService()
 
+# Models
 class AnalyzeRequest(BaseModel):
     company_name: str
 
-class CompareRequest(BaseModel):
-    company_a: str
-    company_b: str
+class ChatRequest(BaseModel):
+    message: str
+    context: str = ""  # Optional context about current analysis
 
-# ──────────────────────────────────────────────────────────
-# Original Routes
-# ──────────────────────────────────────────────────────────
+class ChatResponse(BaseModel):
+    response: str
+    message: str
+
+# Routes
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "message": "AI Rules Analyzer is running"}
 
 @app.post("/chat")
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, provider: str | None = Query(None, description="Optional LLM provider to use for this request (e.g. 'azure_openai' or 'mock')")):
     """
     Chat with the LLM about AI ethics and policies
     
@@ -69,9 +71,53 @@ async def chat(request: ChatRequest):
         prompt = request.message
         if request.context:
             prompt = f"Context: {request.context}\n\nUser Query: {request.message}"
+
+        # Default canned question/answer mapping. If the user's message matches a key (case-insensitive,
+        # stripped), return the canned answer immediately as JSON. This allows predictable QA for common
+        # help or demo queries without calling the external LLM.
+        DEFAULT_QA = {
+            "what are the main ai ethics risks?": "Bias and discrimination; lack of transparency; privacy violations; security and misuse; accountability gaps; safety and reliability; labor/economic impact; manipulation/misinformation; environmental costs; concentration of power.",
+            "how do i improve ai transparency?": "Document datasets and model decisions, provide model cards and explainability tools, enable audits, and publish governance processes and audit trails.",
+            "what is your privacy policy?": "This is a demo service; no user data is stored persistently by default. For production, consult the project's privacy guidelines and set up secure data handling and retention policies.",
+        }
+
+        key = request.message.strip().lower()
+        if key in DEFAULT_QA:
+            return ChatResponse(response=DEFAULT_QA[key], message=request.message)
+
+        # Greeting detection: if the user sends a greeting phrase,
+        # return a personalized greeting injecting system username and current day.
+        import getpass
+        from datetime import datetime
         
-        # Generate response from LLM
-        response = llm_service.generate(prompt, max_tokens=1000)
+        tokens = request.message.strip().split()
+        if len(tokens) >= 1:
+            first_word = tokens[0].lower().strip().strip(',.!?')
+            if first_word in ("hello", "hi", "hey", "greetings"):
+                try:
+                    username = getpass.getuser().capitalize()
+                except Exception:
+                    username = "Friend"
+                
+                current_day = datetime.now().strftime("%A")
+                date_str = datetime.now().strftime("%B %d")
+                
+                greeting = f"Hey {username}, how are you doing? Happy {current_day}! 🌟 How can I help you analyze AI policies today on {date_str}?"
+                return ChatResponse(response=greeting, message=request.message)
+        
+        # If a provider query param is provided, try to use a provider just for this request
+        if provider:
+            try:
+                temp_provider = LLMService.create_provider(provider)
+            except ValueError as e:
+                # configuration missing or unknown provider
+                raise HTTPException(status_code=400, detail=str(e))
+
+            # use temp provider directly
+            response = temp_provider.generate(prompt, max_tokens=1000)
+        else:
+            # Generate response from default LLM service (app-wide)
+            response = llm_service.generate(prompt, max_tokens=1000)
         
         return ChatResponse(
             response=response,
@@ -120,164 +166,296 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "health": "/health",
-            "analyze": "/analyze (POST)",
-            "compare": "/compare (POST)",
-            "companies": "/companies (GET)",
-            "sessions": "/sessions (GET/POST)",
-            "session_detail": "/sessions/{session_id} (GET/PUT/DELETE)",
+            "analyze": "/analyze (POST)"
         }
     }
 
-<<<<<<< HEAD
-# ──────────────────────────────────────────────────────────
-# Person 4: Baseline Comparison Routes
-# ──────────────────────────────────────────────────────────
+# ── Rating Models ──────────────────────────────────────────────────
 
-@app.post("/compare")
-async def compare_companies(request: CompareRequest):
-    """
-    Compare two companies using the baseline method.
-    
-    Performs keyword-coverage analysis across 6 AI ethics categories
-    and returns a structured side-by-side comparison.
-    
-    Args:
-        request: CompareRequest with company_a and company_b names
-        
-    Returns:
-        ComparisonResult with category scores, winner, strengths/weaknesses
-    """
+class RatingRequest(BaseModel):
+    company_name: str
+    user_id: str
+    user_name: str
+    transparency_score: int
+    fairness_score: int
+    privacy_score: int
+    accountability_score: int
+    comment: str = ""
+
+# ── Rating Routes ──────────────────────────────────────────────────
+
+@app.post("/ratings")
+async def submit_rating(request: RatingRequest):
+    """Submit a rating for a company"""
     try:
-        if not request.company_a or not request.company_a.strip():
-            raise HTTPException(status_code=400, detail="company_a is required")
-        if not request.company_b or not request.company_b.strip():
-            raise HTTPException(status_code=400, detail="company_b is required")
-        if request.company_a.strip().lower() == request.company_b.strip().lower():
-            raise HTTPException(status_code=400, detail="Please select two different companies")
-
-        result = baseline_service.compare(request.company_a, request.company_b)
+        # Validate scores are between 1-10
+        scores = [
+            request.transparency_score,
+            request.fairness_score,
+            request.privacy_score,
+            request.accountability_score
+        ]
+        for score in scores:
+            if not 1 <= score <= 10:
+                raise HTTPException(
+                    status_code=400,
+                    detail="All scores must be between 1 and 10"
+                )
+        
+        result = rating_service.add_rating(
+            company_name=request.company_name,
+            user_id=request.user_id,
+            user_name=request.user_name,
+            transparency_score=request.transparency_score,
+            fairness_score=request.fairness_score,
+            privacy_score=request.privacy_score,
+            accountability_score=request.accountability_score,
+            comment=request.comment
+        )
         return result
-
     except HTTPException as e:
         raise e
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error comparing companies: {str(e)}"
+            detail=f"Error submitting rating: {str(e)}"
         )
 
-@app.get("/companies")
-async def list_companies():
-    """
-    List all available companies for comparison.
-    
-    Returns:
-        List of company names
-    """
-    from services.data_service import DataService
-    ds = DataService()
-    companies = ds.get_all_companies()
-    return {"companies": companies, "total": len(companies)}
+@app.get("/ratings/{company_name}")
+async def get_company_ratings(company_name: str):
+    """Get all ratings for a company"""
+    try:
+        ratings = rating_service.get_company_ratings(company_name)
+        return ratings
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching ratings: {str(e)}"
+        )
 
-# ──────────────────────────────────────────────────────────
-# Person 4: Session Management Routes
-# ──────────────────────────────────────────────────────────
+@app.get("/ratings/company/{company_name}/details")
+async def get_company_rating_details(company_name: str):
+    """Get aggregated rating details for a company"""
+    try:
+        if not company_name or not company_name.strip():
+            raise HTTPException(status_code=400, detail="Company name is required")
 
-@app.post("/sessions")
-async def create_session(request: SessionCreateRequest = None):
-    """
-    Create a new session.
-    
-    Returns:
-        Newly created session object
-    """
-    user_id = request.user_id if request else None
-    session = session_service.create_session(user_id=user_id)
-    return session
+        details = rating_service.get_company_details(company_name)
+        return details
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching company rating details: {str(e)}"
+        )
 
-@app.get("/sessions")
-async def list_sessions():
-    """
-    List all sessions.
-    
-    Returns:
-        List of all session objects
-    """
-    sessions = session_service.list_sessions()
-    return {"sessions": sessions, "total": len(sessions)}
+@app.get("/ratings/analytics/summary")
+async def get_dashboard_summary():
+    """Get full dashboard analytics summary"""
+    try:
+        summary = rating_service.get_dashboard_summary()
+        return summary
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching dashboard: {str(e)}"
+        )
 
-@app.get("/sessions/{session_id}")
-async def get_session(session_id: str):
-    """
-    Get a specific session by ID.
-    
-    Args:
-        session_id: UUID of the session
+# ── Ethics Timeline Routes ──────────────────────────────────────────
+
+@app.get("/ethics/companies")
+async def get_ethics_companies():
+    """Get list of all available companies with ethics data"""
+    try:
+        companies = ethics_service.get_companies()
+        return {
+            "companies": companies,
+            "total": len(companies)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching companies: {str(e)}"
+        )
+
+@app.get("/ethics/timeline/{company_name}")
+async def get_ethics_timeline(company_name: str):
+    """Get ethics timeline data for a specific company"""
+    try:
+        if not company_name or not company_name.strip():
+            raise HTTPException(status_code=400, detail="Company name is required")
         
-    Returns:
-        Session object with comparison history
-    """
-    session = session_service.get_session(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return session
-
-@app.put("/sessions/{session_id}")
-async def update_session(session_id: str, request: SessionUpdateRequest):
-    """
-    Add a comparison entry to a session.
-    
-    Args:
-        session_id: UUID of the session
-        request: Comparison details to add
+        timeline_data = ethics_service.get_timeline_data(company_name)
         
-    Returns:
-        Updated session object
-    """
-    session = session_service.add_comparison(
-        session_id=session_id,
-        company_a=request.company_a,
-        company_b=request.company_b,
-        winner=request.winner,
-        summary=request.summary,
-    )
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return session
-
-@app.delete("/sessions/{session_id}")
-async def delete_session(session_id: str):
-    """
-    Delete a session.
-    
-    Args:
-        session_id: UUID of the session
+        if not timeline_data.get('timeline'):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No ethics data found for {company_name}"
+            )
         
-    Returns:
-        Success message
-    """
-    deleted = session_service.delete_session(session_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return {"status": "deleted", "session_id": session_id}
+        return timeline_data
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching ethics timeline: {str(e)}"
+        )
 
-@app.post("/sessions/{session_id}/reset")
-async def reset_session(session_id: str):
-    """
-    Reset a session (clear comparisons but keep session alive).
-    
-    Args:
-        session_id: UUID of the session
+# ── Synthetic Data Routes (User Ratings & Aggregates) ───────────────
+
+@app.get("/synthetic/users")
+async def get_all_users():
+    """Get all synthetic users"""
+    try:
+        users = synthetic_data_service.get_all_users()
+        return {
+            "users": users,
+            "total": len(users)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching users: {str(e)}"
+        )
+
+@app.get("/synthetic/users/{user_id}")
+async def get_user(user_id: str):
+    """Get a specific user by ID"""
+    try:
+        user = synthetic_data_service.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail=f"User {user_id} not found"
+            )
+        return user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching user: {str(e)}"
+        )
+
+@app.get("/synthetic/companies/aggregates")
+async def get_all_company_aggregates():
+    """Get aggregated scores for all companies"""
+    try:
+        aggregates = synthetic_data_service.get_all_companies_aggregates()
+        return {
+            "aggregates": aggregates,
+            "total_companies": len(aggregates)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching aggregates: {str(e)}"
+        )
+
+@app.get("/synthetic/companies/{company_name}/aggregates")
+async def get_company_aggregates(company_name: str):
+    """Get aggregated scores for a specific company"""
+    try:
+        if not company_name or not company_name.strip():
+            raise HTTPException(status_code=400, detail="Company name is required")
         
-    Returns:
-        Reset session object
-    """
-    session = session_service.reset_session(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return session
+        aggregates = synthetic_data_service.get_company_aggregated_scores(company_name)
+        return aggregates
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching company aggregates: {str(e)}"
+        )
+
+@app.get("/synthetic/companies/{company_name}/details")
+async def get_company_rating_details(company_name: str):
+    """Get detailed rating information for a company"""
+    try:
+        if not company_name or not company_name.strip():
+            raise HTTPException(status_code=400, detail="Company name is required")
+        
+        details = synthetic_data_service.get_company_rating_details(company_name)
+        return details
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching company details: {str(e)}"
+        )
+
+@app.get("/synthetic/users/{user_id}/ratings")
+async def get_user_ratings(user_id: str):
+    """Get all ratings submitted by a specific user"""
+    try:
+        if not user_id or not user_id.strip():
+            raise HTTPException(status_code=400, detail="User ID is required")
+        
+        ratings = synthetic_data_service.get_user_ratings(user_id)
+        return {
+            "user_id": user_id,
+            "ratings": ratings,
+            "total": len(ratings)
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching user ratings: {str(e)}"
+        )
+
+class AddRatingRequest(BaseModel):
+    user_id: str
+    company_name: str
+    ethics_score: int
+    privacy_score: int
+    fairness_score: int
+    transparency_score: int
+    comment: str = ""
+
+@app.post("/synthetic/ratings")
+async def add_user_rating(request: AddRatingRequest):
+    """Add a new rating from a user for a company"""
+    try:
+        # Validate scores
+        for score in [request.ethics_score, request.privacy_score, 
+                     request.fairness_score, request.transparency_score]:
+            if not (1 <= score <= 10):
+                raise HTTPException(
+                    status_code=400,
+                    detail="All scores must be between 1 and 10"
+                )
+        
+        rating = synthetic_data_service.add_user_rating(
+            user_id=request.user_id,
+            company_name=request.company_name,
+            ethics_score=request.ethics_score,
+            privacy_score=request.privacy_score,
+            fairness_score=request.fairness_score,
+            transparency_score=request.transparency_score,
+            comment=request.comment
+        )
+        
+        # Return the new rating along with updated aggregates
+        aggregates = synthetic_data_service.get_company_aggregated_scores(request.company_name)
+        
+        return {
+            "rating": rating,
+            "updated_aggregates": aggregates
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error adding rating: {str(e)}"
+        )
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

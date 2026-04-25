@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, X, MessageCircle } from 'lucide-react'
+import { CosmosChatIcons } from './CosmosChatIcons'
 import { chatWithLLM } from '../services/api'
 
 export interface ChatMessage {
@@ -35,20 +35,24 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
     
     if (!input.trim() || isLoading) return
 
+    sendMessageContent(input)
+    setInput('')
+  }
+
+  const sendMessageContent = async (text: string) => {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: input,
+      content: text,
       timestamp: new Date(),
     }
 
     setMessages((prev) => [...prev, userMessage])
-    setInput('')
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await chatWithLLM(input, context)
+      const response = await chatWithLLM(text, context)
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -75,7 +79,7 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-orange-500/20 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
-          <MessageCircle className="w-5 h-5 text-amber-300" />
+          <CosmosChatIcons.chat className="w-5 h-5 text-amber-300 animate-pulse" />
           <h3 className="text-sm font-semibold text-amber-200">AI Chat Assistant</h3>
         </div>
         <div className="flex items-center space-x-2">
@@ -85,7 +89,7 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
               className="p-1.5 rounded-lg hover:bg-red-500/20 text-red-400/70 hover:text-red-300 transition-colors"
               title="Clear chat"
             >
-              <X className="w-4 h-4" />
+              <CosmosChatIcons.clear className="w-4 h-4 animate-spin-slow" />
             </button>
           )}
           {onClose && (
@@ -94,7 +98,7 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
               className="p-1.5 rounded-lg hover:bg-orange-500/20 text-orange-400/70 hover:text-orange-300 transition-colors"
               title="Close chat"
             >
-              <X className="w-4 h-4" />
+              <CosmosChatIcons.close className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -104,9 +108,25 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-orange-500/50 scrollbar-track-transparent">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <MessageCircle className="w-12 h-12 text-orange-500/20 mb-3" />
+            <CosmosChatIcons.chat className="w-12 h-12 text-orange-500/20 mb-3 animate-bounce" />
             <p className="text-amber-200/50 text-sm font-medium">Start a conversation</p>
-            <p className="text-amber-200/30 text-xs mt-1">Ask questions about AI ethics and policies</p>
+            <p className="text-amber-200/30 text-xs mt-1 mb-6">Ask questions about AI ethics and policies</p>
+            
+            <div className="flex flex-col gap-2 w-full max-w-[250px]">
+              {[
+                "Summarize AI policies",
+                "What are their privacy ethics?",
+                "How is fairness enforced?"
+              ].map((query, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendMessageContent(query)}
+                  className="px-3 py-2 text-xs font-medium text-amber-100 bg-gradient-to-r from-orange-600/20 to-purple-600/20 hover:from-orange-600/40 hover:to-purple-600/40 border border-orange-500/30 rounded-lg transition-all text-left"
+                >
+                  {query}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -170,7 +190,7 @@ export default function ChatBar({ context, onClose }: ChatBarProps) {
             className="flex items-center justify-center px-3 py-2 bg-gradient-to-r from-orange-600/40 to-purple-600/40 hover:from-orange-600/60 hover:to-purple-600/60 text-amber-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-500/20"
             title="Send message"
           >
-            <Send className="w-4 h-4" />
+            <CosmosChatIcons.send className="w-4 h-4 animate-float" />
           </button>
         </form>
       </div>

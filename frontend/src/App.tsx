@@ -1,30 +1,49 @@
-import { useState, useEffect } from 'react'
-import { Sparkles, LogOut, Star, Zap, Globe } from 'lucide-react'
+import { useState } from 'react'
+import { Sparkles, LogOut, Star, Zap, Globe, ArrowLeft } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import LoginScreen from './components/LoginScreen'
 import CompanySidebar from './components/CompanySidebar'
 import PolicyView from './components/PolicyView'
-import { analyzeCompanyRules, createSession } from './services/api'
-import type { AnalysisResult, Company, Session } from './types'
-import ComparisonDashboard from './components/ComparisonDashboard'
+import ChatBar from './components/ChatBar'
+import AnalysisPanel from './components/AnalysisPanel'
+import EthicsTimeline from './components/EthicsTimeline'
+import CompanySummaryView from './components/CompanySummaryView'
+import { analyzeCompanyRules, getEthicsTimeline } from './services/api'
+import type { AnalysisResult, Company } from './types'
+import RatingDashboard from './components/RatingDashboard'
 
 function App() {
   const { user, isAuthenticated, logout } = useAuth()
-  const [activeTab, setActiveTab] = useState<'single' | 'compare'>('single')
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
+  const [activeView, setActiveView] = useState<'analysis' | 'ratings'>('analysis')
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [showTimeline, setShowTimeline] = useState(false)
+  const [showQuickReview, setShowQuickReview] = useState(false)
+  const [timelineData, setTimelineData] = useState<any>(null)
 
-  // Initialize session
-  useEffect(() => {
-    if (isAuthenticated) {
-      createSession(user?.id).then(setSession).catch(console.error)
+  const handleShowTimeline = async () => {
+    if (!selectedCompany) return
+    
+    try {
+      const data = await getEthicsTimeline(selectedCompany.name)
+      setTimelineData(data)
+      setShowTimeline(true)
+    } catch (err) {
+      console.error('Error loading timeline:', err)
+      setShowTimeline(false)
     }
-  }, [isAuthenticated, user?.id])
+  }
+
+  const handleShowQuickReview = () => {
+    setShowQuickReview(true)
+  }
 
   const handleSelectCompany = async (company: Company) => {
+    setShowTimeline(false) // Reset timeline when selecting new company
+    setTimelineData(null)
     setSelectedCompany(company)
     setIsLoading(true)
     setError(null)
@@ -68,13 +87,37 @@ function App() {
                 <Sparkles className="w-6 h-6 text-amber-300 relative z-10 drop-shadow-lg" />
               </div>
               
-              <div>
+              <div className="ml-2">
                 <h1 className="text-2xl font-black bg-gradient-to-r from-amber-300 via-orange-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg">
                   ✨ Apte
                 </h1>
                 <p className="text-xs text-amber-200/80 font-semibold uppercase tracking-wider">
                   AI Principle Tracker Ethos
                 </p>
+              </div>
+
+              {/* Navigation tabs */}
+              <div className="flex gap-2 ml-6">
+                <button
+                  onClick={() => setActiveView('analysis')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    activeView === 'analysis'
+                      ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+                      : 'text-amber-200/50 hover:text-amber-200'
+                  }`}
+                >
+                  Analysis
+                </button>
+                <button
+                  onClick={() => setActiveView('ratings')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    activeView === 'ratings'
+                      ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+                      : 'text-amber-200/50 hover:text-amber-200'
+                  }`}
+                >
+                  Ratings
+                </button>
               </div>
             </div>
 
@@ -92,6 +135,18 @@ function App() {
               </div>
 
               <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-semibold shadow-lg ${
+                  isChatOpen
+                    ? 'bg-gradient-to-r from-orange-600/40 to-purple-600/40 text-amber-200 border border-orange-400/50 shadow-orange-500/30'
+                    : 'bg-gradient-to-r from-purple-600/20 to-orange-600/20 hover:from-purple-600/40 hover:to-orange-600/40 text-purple-300 hover:text-amber-200 border border-purple-500/30 hover:border-orange-400/50'
+                }`}
+                title="Toggle AI Chat Assistant"
+              >
+                <span>Chat</span>
+              </button>
+
+              <button
                 onClick={logout}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-600/20 to-pink-600/20 hover:from-red-600/40 hover:to-pink-600/40 text-red-300 hover:text-red-200 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl hover:shadow-red-500/20"
               >
@@ -100,99 +155,147 @@ function App() {
               </button>
             </div>
           </div>
-
-          {/* Navigation Tabs */}
-          <div className="flex items-center justify-center space-x-2 mt-4">
-            <button
-              onClick={() => setActiveTab('single')}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
-                activeTab === 'single'
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-dark-900 shadow-lg shadow-orange-500/20'
-                  : 'bg-dark-800/50 text-gray-400 hover:text-white border border-dark-600 hover:border-dark-400'
-              }`}
-            >
-              Single Analysis
-            </button>
-            <button
-              onClick={() => setActiveTab('compare')}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
-                activeTab === 'compare'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/20'
-                  : 'bg-dark-800/50 text-gray-400 hover:text-white border border-dark-600 hover:border-dark-400'
-              }`}
-            >
-              Side-by-Side Compare
-            </button>
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative z-10">
-        
-        {activeTab === 'single' ? (
-          <>
-            {/* Left Sidebar - Companies */}
-            <div className="w-80 border-r border-gradient-to-b from-orange-900/30 to-purple-900/20 bg-gradient-to-b from-dark-900/50 to-dark-900/20 backdrop-blur-sm overflow-hidden flex flex-col">
-              <CompanySidebar
-                companies={[]}
-                selectedCompany={selectedCompany}
-                onSelectCompany={handleSelectCompany}
-                isLoading={isLoading}
+        {/* Left Sidebar - Companies */}
+        <div className="w-80 border-r border-gradient-to-b from-orange-900/30 to-purple-900/20 bg-gradient-to-b from-dark-900/50 to-dark-900/20 backdrop-blur-sm overflow-hidden">
+          <CompanySidebar
+            companies={[]}
+            selectedCompany={selectedCompany}
+            onSelectCompany={handleSelectCompany}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {/* Right Content */}
+        <div className="flex-1 flex overflow-hidden gap-4 p-4 bg-gradient-to-b from-dark-900/30 to-dark-900/10">
+          {/* Main analysis/ratings area */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto">
+
+              {activeView === 'analysis' ? (
+                <>
+                  {error && (
+                    <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
+                      <div className="flex items-start space-x-3">
+                        <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-red-200 font-semibold">{error}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedCompany && analysis && (
+                    <div className="animate-fade-in space-y-6">
+                      {!showTimeline && !showQuickReview ? (
+                        <>
+                          <PolicyView analysis={analysis} isLoading={isLoading} />
+                          
+                          {/* Analysis Section - Bottom Mid with Analyse Button - Only shown when company selected */}
+                          <div className="mt-8 pt-8 border-t border-orange-500/20">
+                            <h3 className="text-lg font-semibold text-amber-200 mb-4">Ethics Timeline</h3>
+                            <AnalysisPanel 
+                              selectedCompany={selectedCompany.name}
+                              onAnalyze={handleShowTimeline}
+                              onTimelineToggle={setShowTimeline}
+                              onQuickReview={handleShowQuickReview}
+                            />
+                          </div>
+                        </>
+                      ) : showTimeline ? (
+                        <>
+                          <div className="flex items-start justify-between mb-6">
+                            <button
+                              onClick={() => setShowTimeline(false)}
+                              className="px-4 py-2 text-sm font-semibold text-orange-300 hover:text-orange-200 transition-colors flex items-center gap-2 bg-orange-500/10 hover:bg-orange-500/20 rounded-lg border border-orange-500/30"
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                              Back to Analysis
+                            </button>
+                          </div>
+                          <div className="bg-gradient-to-br from-white/5 to-gray-900/20 rounded-xl border border-orange-200/20 shadow-lg overflow-hidden">
+                            {timelineData ? (
+                              <EthicsTimeline
+                                companyName={timelineData.company_name}
+                                policies={timelineData.timeline}
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center py-12">
+                                <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      ) : showQuickReview ? (
+                        <>
+                          <div className="flex items-start justify-between mb-6">
+                            <button
+                              onClick={() => setShowQuickReview(false)}
+                              className="px-4 py-2 text-sm font-semibold text-purple-300 hover:text-purple-200 transition-colors flex items-center gap-2 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg border border-purple-500/30"
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                              Back to Analysis
+                            </button>
+                          </div>
+                          {selectedCompany ? (
+                            <CompanySummaryView companyName={selectedCompany.name} />
+                          ) : (
+                            <div className="text-center text-gray-400">No company selected</div>
+                          )}
+                        </>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {!selectedCompany && !analysis && !isLoading && !error && (
+                    <div className="flex items-center justify-center h-96">
+                      <div className="text-center max-w-md">
+
+                        <div className="relative p-8 mb-6">
+                          <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
+                          <div className="relative flex items-center justify-center space-x-2">
+                            <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
+                            <Globe className="w-10 h-10 text-orange-400 animate-float" />
+                            <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" />
+                          </div>
+                        </div>
+
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
+                          Welcome to Apte
+                        </h2>
+
+                        <p className="text-amber-200/80 mb-4 leading-relaxed">
+                          Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
+                        </p>
+
+                        <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
+                          Select a company to begin →
+                        </p>
+
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="animate-fade-in">
+                  <RatingDashboard />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Chat Sidebar - Right */}
+          {isChatOpen && (
+            <div className="w-96 flex flex-col h-full rounded-lg overflow-hidden">
+              <ChatBar 
+                context={selectedCompany ? `Currently analyzing: ${selectedCompany.name}` : undefined}
+                onClose={() => setIsChatOpen(false)}
               />
             </div>
-
-            {/* Right Content - Policy Details */}
-            <div className="flex-1 overflow-y-auto bg-gradient-to-b from-dark-900/30 to-dark-900/10">
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {error && (
-                  <div className="bg-gradient-to-r from-red-900/30 to-red-900/10 border border-red-600/50 rounded-2xl p-6 mb-6 backdrop-blur-sm shadow-xl shadow-red-500/10 animate-pulse">
-                    <div className="flex items-start space-x-3">
-                      <Zap className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-red-200 font-semibold">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedCompany && analysis && (
-                  <div className="animate-fade-in">
-                    <PolicyView analysis={analysis} isLoading={isLoading} />
-                  </div>
-                )}
-
-                {!selectedCompany && !analysis && !isLoading && !error && (
-                  <div className="flex items-center justify-center h-96">
-                    <div className="text-center max-w-md">
-                      {/* Cosmic animation container */}
-                      <div className="relative p-8 mb-6">
-                        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
-                        <div className="relative flex items-center justify-center space-x-2">
-                          <Star className="w-8 h-8 text-amber-400 animate-cosmic-spin" />
-                          <Globe className="w-10 h-10 text-orange-400 animate-float" />
-                          <Sparkles className="w-8 h-8 text-purple-400 animate-cosmic-spin" style={{ animationDirection: 'reverse' }} />
-                        </div>
-                      </div>
-                      
-                      <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-300 to-purple-300 bg-clip-text text-transparent mb-3">
-                        Welcome to Apte
-                      </h2>
-                      <p className="text-amber-200/80 mb-4 leading-relaxed">
-                        Explore corporate AI ethical guidelines and principles. Analyze how companies approach artificial intelligence governance.
-                      </p>
-                      <p className="text-sm text-amber-200/60 font-semibold uppercase tracking-widest">
-                        Select a company to begin →
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 w-full bg-gradient-to-b from-dark-900/30 to-dark-900/10">
-            <ComparisonDashboard sessionId={session?.id} />
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

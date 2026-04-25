@@ -129,37 +129,15 @@ if [ "$HAS_DOCKER" = true ]; then
     
     cd "$DOCKER_DIR"
     
-    # Pull images
-    echo -e "${YELLOW}  • Pulling latest images (first time takes a few minutes)...${NC}"
-    docker pull ollama/ollama:latest > /dev/null 2>&1 &
-    bg_pid=$!
-    
-    # Build services
-    echo -e "${YELLOW}  • Building services...${NC}"
+    # Pull and build images (Ollama removed for lightweight default)
+    echo -e "${YELLOW}  • Building backend/frontend images...${NC}"
     docker-compose build --no-cache > /dev/null 2>&1 || true
-    
-    wait $bg_pid 2>/dev/null || true
-    
+
     print_success "Images ready"
     echo ""
-    
-    # Start Ollama first
-    echo -e "${YELLOW}  • Starting Ollama container...${NC}"
-    docker-compose up -d ollama 2>/dev/null || true
-    
-    echo -e "${YELLOW}  • Waiting for Ollama to be ready...${NC}"
-    sleep 3
-    
-    # Check if Llama2 model exists, if not download it
-    if ! docker-compose exec -T ollama ollama list 2>/dev/null | grep -q "llama2"; then
-        echo -e "${YELLOW}  • Downloading Llama2 model (4GB - one-time, 5-10 minutes)...${NC}"
-        docker-compose exec -T ollama ollama pull llama2 > /dev/null 2>&1 || true
-    fi
-    
-    echo ""
-    
-    # Start all services
-    echo -e "${BLUE}→ Starting all services...${NC}"
+
+    # Start all services (lightweight - no local Ollama by default)
+    echo -e "${BLUE}→ Starting backend + frontend services...${NC}"
     echo ""
     docker-compose up -d
     

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import type { AnalysisResult } from '../types'
 import { useState } from 'react'
+import CompanyPoliciesDisplay from './CompanyPoliciesDisplay'
 
 interface PolicyViewProps {
   analysis: AnalysisResult
@@ -17,6 +18,49 @@ interface PolicyViewProps {
 
 export default function PolicyView({ analysis, isLoading }: PolicyViewProps) {
   const [expandedYear, setExpandedYear] = useState<number | null>(null)
+
+  const policyLinks: Record<string, { label: string; url: string }[]> = {
+    google: [
+      { label: 'AI Principles', url: 'https://ai.google/principles/' },
+      { label: 'Responsible AI', url: 'https://ai.google/responsibilities/' },
+    ],
+    microsoft: [
+      { label: 'Responsible AI', url: 'https://www.microsoft.com/en-us/ai/responsible-ai' },
+      { label: 'Responsible AI Standard', url: 'https://aka.ms/responsibleai' },
+    ],
+    openai: [
+      { label: 'Safety & Alignment', url: 'https://openai.com/safety/' },
+      { label: 'Policies', url: 'https://openai.com/policies/' },
+    ],
+    meta: [
+      { label: 'Responsible AI', url: 'https://ai.facebook.com/responsible-ai/' },
+      { label: 'AI Research', url: 'https://ai.facebook.com/research/' },
+    ],
+    amazon: [
+      { label: 'Responsible AI', url: 'https://www.amazon.science/responsible-ai' },
+      { label: 'AI Services', url: 'https://aws.amazon.com/machine-learning/' },
+    ],
+    ibm: [
+      { label: 'Trustworthy AI', url: 'https://www.ibm.com/artificial-intelligence/ethics' },
+      { label: 'AI Transparency', url: 'https://www.ibm.com/watson/ai-ethics' },
+    ],
+    apple: [
+      { label: 'Privacy', url: 'https://www.apple.com/privacy/' },
+      { label: 'Machine Learning', url: 'https://machinelearning.apple.com/' },
+    ],
+    tesla: [
+      { label: 'Autopilot Safety', url: 'https://www.tesla.com/autopilot' },
+      { label: 'AI/ML (Tesla)', url: 'https://www.tesla.com/AI' },
+    ],
+    gemini: [
+      { label: 'Google AI', url: 'https://ai.google/' },
+      { label: 'Gemini', url: 'https://gemini.google.com/' },
+    ],
+  }
+
+  const companyKey = analysis.companyName.toLowerCase()
+  const links = policyLinks[companyKey] || []
+  const topHighlights = analysis.keyPoints.slice(0, 3)
 
   if (isLoading) {
     return (
@@ -106,6 +150,59 @@ export default function PolicyView({ analysis, isLoading }: PolicyViewProps) {
               </div>
             </div>
             <p className="text-xs text-dark-400 text-center">Compliance Score</p>
+          </div>
+        </div>
+
+        {/* Creative policy overview + links */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 rounded-xl border border-purple-900/20 bg-dark-800/40 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield className="w-4 h-4 text-amber-300" />
+              <h3 className="text-sm font-semibold text-amber-200">Policy at a Glance</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {topHighlights.length > 0 ? (
+                topHighlights.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg border border-purple-900/30 bg-dark-900/40 p-3"
+                  >
+                    <p className="text-xs uppercase tracking-wide text-purple-300/70 mb-1">Highlight {idx + 1}</p>
+                    <p className="text-sm text-dark-200">{item}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-lg border border-purple-900/30 bg-dark-900/40 p-3">
+                  <p className="text-sm text-dark-300">
+                    Key highlights will appear here once analysis data is available.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-purple-900/20 bg-dark-800/40 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-blue-300" />
+              <h3 className="text-sm font-semibold text-blue-200">Policy Sources</h3>
+            </div>
+            {links.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                {links.map((link) => (
+                  <a
+                    key={link.url}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-amber-200/90 hover:text-amber-100 transition-colors underline underline-offset-4"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-dark-400">No policy links available.</p>
+            )}
           </div>
         </div>
       </div>
