@@ -112,6 +112,13 @@ The project is built using a modern, decoupled full-stack architecture to ensure
     \item \textbf{Decoupled Logic:} The analysis logic is entirely contained within the `AnalysisService` and `BaselineService`. This allows the backend to be extended with new models (e.g., integrating a real LLM via OpenAI API) without changing the core API structure.
 \end{itemize}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\columnwidth]{assets/architecture.png}
+\caption{Apte System Architecture: Data flows from CSV sources through the FastAPI backend to the React-based visual dashboard.}
+\label{fig:architecture}
+\end{figure}
+
 \subsection{Comparison and Scoring Algorithm}
 The "Person 4" contribution—the Side-by-Side Comparison Dashboard—utilizes a "Keyword Coverage Scoring" (KCS) algorithm. When a user selects two companies (e.g., Google vs. OpenAI), the system:
 \begin{enumerate}
@@ -141,6 +148,13 @@ The most striking result from our analysis of the Gemini corpus (2019–2025) is
     \item \textbf{The Governance Plateau:} "Accountability" and "Oversight" keywords have remained steady, suggesting that while the technical methods of safety change, the high-level governance structure has stabilized.
 \end{itemize}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\columnwidth]{assets/trends.png}
+\caption{Longitudinal Ethics Signals (2019-2025): Visualization of the semantic shift from abstract fairness to operational safety and risk mitigation.}
+\label{fig:trends}
+\end{figure}
+
 \subsection{Comparative Benchmarking: Google vs. Microsoft vs. OpenAI}
 Using the Side-by-Side Comparison Dashboard, we conducted a benchmark of the top AI providers. The results (summarized in Table I) provide a quantitative snapshot of their ethical positioning.
 
@@ -168,6 +182,13 @@ Key findings from this comparison include:
 2.  **Microsoft** leads in **Privacy**, reflecting their long history in enterprise software governance and GDPR compliance.
 3.  **OpenAI** leads in **Safety**, with a highly concentrated set of keywords focused on "Frontier Risk" and "Jailbreak Mitigation," but scores lower on "Transparency" compared to the legacy tech giants.
 4.  **IBM** shows a unique leadership in **Accountability**, with detailed policy points on "Human-in-the-Loop" controls.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\columnwidth]{assets/radar.png}
+\caption{Comparative Radar Chart: Visual representation of ethical pillar coverage comparing Google (high Transparency) and OpenAI (high Safety).}
+\label{fig:radar}
+\end{figure}
 
 \subsection{Evaluation of the Comparison Engine}
 We evaluated the effectiveness of the automated comparison engine by comparing its output summaries with manual expert reviews. The engine correctly identified the "winning" company in a specific category (e.g., "Who has better privacy policies?") in 85% of cases. The primary source of error was "Semantic Ambiguity"—where a company uses a synonym that was not in our mapping dictionary. This highlights the need for ongoing dictionary maintenance and future integration of embeddings-based similarity.

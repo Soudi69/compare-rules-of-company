@@ -68,6 +68,9 @@ A significant challenge was the heterogeneity of the data (word-level vs. senten
 -   **Frontend:** React + TypeScript + Vite. A dashboard-centric UI using Recharts for trend visualization.
 -   **Modular Services:** The `BaselineService` (scoring logic) and `SessionService` (history management) are decoupled to allow for easy extension (e.g., swapping mocks for real LLMs).
 
+![Apte System Architecture](assets/architecture.png)
+*Figure 1: Apte System Architecture: Data flows from CSV sources through the FastAPI backend to the React-based visual dashboard.*
+
 ### D. Comparison and Scoring Algorithm (The KCS Engine)
 The side-by-side comparison engine implements a **Keyword Coverage Scoring (KCS)** algorithm:
 1.  Extracts policy points and keywords for both companies.
@@ -90,6 +93,9 @@ The most striking result is the transition from **"Abstract Ethics"** to **"Oper
 -   **Safety Surge (2024-2025):** A massive increase in "Risk Mitigation," "Harm Prevention," and "Testing." The term **"red-teaming"** appeared with 400% more frequency in 2025 than in 2022.
 -   **Governance Stability:** Keywords related to "Oversight" remained steady, suggesting that while safety methods change, the high-level governance structure has stabilized.
 
+![Longitudinal Ethics Signals](assets/trends.png)
+*Figure 2: Longitudinal Ethics Signals (2019-2025): Visualization of the semantic shift from abstract fairness to operational safety and risk mitigation.*
+
 ### B. Comparative Benchmarking Results
 
 | Company | Fairness | Transparency | Safety | Privacy | Accountability | Governance |
@@ -100,6 +106,9 @@ The most striking result is the transition from **"Abstract Ethics"** to **"Oper
 | **IBM** | 7.5 | 8.0 | 7.0 | 8.5 | 9.0 | 8.5 |
 
 *Table 1: Ethics Pillar Scores (Scale 0-10)*
+
+![Comparative Radar Chart](assets/radar.png)
+*Figure 3: Comparative Radar Chart: Visual representation of ethical pillar coverage comparing Google (high Transparency) and OpenAI (high Safety).*
 
 ### C. Interpretation of Findings
 1.  **Google** leads in **Transparency**, driven by their extensive "Model Card" framework.
