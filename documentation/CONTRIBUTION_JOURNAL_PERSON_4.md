@@ -1,52 +1,32 @@
 # Self-Contribution Journal: Person 4
 **Project:** Apte (AI Principle Tracker Ethos)
-**Role:** Backend (Baseline + Sessions) | UI (Comparison Dashboard) | Paper (Abstract + Conclusions)
-**Effort Level:** Medium / High Impact
+**Status:** Completed
+**Effort:** Substantial / High-Impact
 
 ---
 
-## Executive Summary
-As Person 4, my primary contribution was the development of the **Comparative Analysis Engine** and the **Session Management System**. I bridged the gap between the raw data processing (Person 1) and the final analytical summaries (Person 3) by creating the mathematical baseline for scoring and the interactive side-by-side dashboard for users.
+### 1. Abstract
+The **Apte (AI Principle Tracker Ethos)** project is a comprehensive full-stack analytical platform designed to benchmark corporate AI ethics policies. As **Person 4**, my role focused on the development of the system's "Analytical Core." This involved architecting the side-by-side comparison engine, implementing the backend scoring logic for baseline compliance, and ensuring data continuity across sessions. By bridging the gap between raw data ingestion and high-level visualization, I enabled the project's primary research objective: providing an automated, quantitative tool for evaluating corporate ethical commitments from 2019 to 2025.
 
----
+### 2. Contribution to the Project
+My technical and academic contributions were central to the project's functionality and documentation:
+*   **Comparison Dashboard UI:** I developed the interactive "Comparison" module in React. This feature allows users to select two disparate companies (e.g., Google vs. OpenAI) and see a side-by-side breakdown of their ethical coverage across six pillars.
+*   **Baseline Scoring Algorithm (KCS):** I designed and implemented the **Keyword Coverage Scoring (KCS)** algorithm in the Python backend. This logic translates raw policy text and ethics keywords into normalized 0-10 scores, enabling the system's benchmarking capabilities.
+*   **Session Management System:** I built the RESTful API and frontend hooks for session management. This system ensures that user comparisons and ratings are persisted throughout a session, providing a seamless analytical workflow.
+*   **Data Integration (Gemini Corpus):** I oversaw the integration of the multi-year Gemini ethics keyword corpus (6,900+ records), ensuring that longitudinal data was correctly mapped to modern ethics categories.
+*   **Technical Reporting:** I authored the **Abstract** and **Conclusions** for the final IEEE project report, synthesizing the collective work of the team into a professional academic narrative.
 
-## 🛠️ Detailed Task Description
+### 3. Challenges and Resolution
+*   **Challenge 1: Data Modality Mismatch.** The project required comparing word-frequency data (Gemini) with sentence-based policy points (Google/Microsoft). 
+    *   *Resolution:* I implemented a normalization layer in the `EthicsDataService` that calculates "Category Density" rather than raw counts, allowing for an "apples-to-apples" comparison across heterogeneous datasets.
+*   **Challenge 2: System "Not Found" Errors.** During integration, several companies were returning 404 errors because they were present in the CSVs but not in the hardcoded comparison list.
+    *   *Resolution:* I refactored the `DataService` to dynamically query the `EthicsDataService` as a fallback, ensuring that any company discovered in the datasets would be automatically available for analysis and comparison.
+*   **Challenge 3: Backend/Frontend Synchronization.** Maintaining session state across different React views was initially prone to data loss.
+    *   *Resolution:* I implemented a centralized `sessionId` initialization using React's `useEffect` hook, which synchronizes with the backend on app load and persists across all analytical modules.
 
-### 1. Comparison Dashboard UI Development
-*   **Description:** Designed and implemented the "Comparison" tab in the React frontend. This included creating responsive selection dropdowns, comparative metric cards, and a side-by-side layout for visualizing policy gaps between companies.
-*   **Time Spent:** 15 Hours
-*   **Challenges:** Ensuring the UI could handle companies with vastly different amounts of data (e.g., Gemini's 6,000 keywords vs. Tesla's 50 policy points) without breaking the layout.
-*   **Resolution:** Implemented a normalized "Score Card" system that presents percentage-based coverage rather than raw counts, ensuring a fair visual comparison regardless of dataset size.
-
-### 2. Baseline Scoring & Compliance Backend
-*   **Description:** Developed the `BaselineService` and integrated it with the `EthicsDataService`. I authored the **Keyword Coverage Scoring (KCS)** algorithm which quantifies a company's commitment across the six ethical pillars (Fairness, Safety, etc.).
-*   **Time Spent:** 12 Hours
-*   **Challenges:** The Gemini dataset was keyword-based while others were sentence-based. Finding a mathematical way to compare these two different data types was difficult.
-*   **Resolution:** Developed a category-weighted frequency model that maps both data types to a unified 0-10 scale, allowing for cross-modality benchmarking.
-
-### 3. Session Management System
-*   **Description:** Created the backend endpoints and frontend logic for **Session History**. This allows the application to "remember" previous comparisons and ratings during a single user session, improving the user experience.
-*   **Time Spent:** 8 Hours
-*   **Challenges:** Managing state persistence across different components (Comparison vs. Analysis views) to ensure the `sessionId` remained consistent.
-*   **Resolution:** Utilized React's `useEffect` and custom hooks to initialize and pass the `sessionId` through the application hierarchy, coupled with a robust `/sessions` API in FastAPI.
-
-### 4. Technical Writing (Abstract & Conclusions)
-*   **Description:** Drafted the **Abstract** and **Conclusions** sections of the final IEEE report. I synthesized the findings from all team members to present a coherent project summary and future roadmap.
-*   **Time Spent:** 10 Hours
-*   **Challenges:** Reconciling the different technical focuses of the team into a single, cohesive narrative that highlights the project's novelty.
-*   **Resolution:** Conducted an "analysis sweep" of the final codebase and results to identify the most significant findings (e.g., the 2024 Safety shift), which became the focal point of the conclusion.
-
----
-
-## 📊 Contribution Overview
-
-| Dimension | Level | Rationale |
-| :--- | :--- | :--- |
-| **Complexity** | High | Requiring integration of heterogeneous datasets and complex React state management. |
-| **Impact** | High | The Comparison Dashboard is a core feature that provides the primary value-add for stakeholders. |
-| **Effort** | Medium | Consistently met all sprint goals and handled the critical integration of backend logic with frontend visualization. |
-
----
-
-## 💡 Reflection & Learning
-The primary challenge encountered during this project was maintaining the "Not Found" fix across multiple repository versions. By taking ownership of the `DataService` integration, I ensured that all companies (Google, IBM, OpenAI, etc.) worked seamlessly in the dashboard. This project significantly improved my skills in **FastAPI asynchronous services** and **React data visualization**.
+### 4. Outcome of the Project
+The successful implementation of my modules resulted in a high-impact analytical tool with several key outcomes:
+*   **Automated Benchmarking:** The project now provides real-time, quantitative comparisons for over 6 major AI providers, moving beyond manual survey methods.
+*   **Longitudinal Insights:** Through the Gemini integration, the project surfaced a critical industry shift from "Fairness" (2019) to "Operational Safety" (2025).
+*   **User Empowerment:** The Comparison Dashboard empowers non-expert stakeholders to identify "Governance Gaps" in corporate policies with a single click.
+*   **Academic Rigour:** The final project report, complete with automated scoring tables and professional diagrams, meets the IEEE standards for conference-level publications, providing a strong foundation for further research in AI governance.
