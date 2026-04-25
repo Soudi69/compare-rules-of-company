@@ -97,6 +97,9 @@ class EthicsDataService:
         if any(os.path.exists(os.path.join(self.data_dir, f)) for f in gemini_files):
             companies.add('Gemini')
         
+        # Add OpenAI as it is supported by the hardcoded guidelines in DataService
+        companies.add('OpenAI')
+        
         # Scan all CSV files in data directory for company policies
         if os.path.exists(self.data_dir):
             for filename in os.listdir(self.data_dir):

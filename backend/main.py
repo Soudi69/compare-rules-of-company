@@ -8,6 +8,8 @@ from services.analysis_service import AnalysisService
 from services.rating_services import RatingService
 from services.ethics_service import EthicsDataService
 from services.synthetic_data_service import SyntheticDataService
+from services.baseline_service import BaselineService
+from services.session_service import SessionService
 
 load_dotenv()
 
@@ -33,6 +35,8 @@ analysis_service = AnalysisService(llm_service)
 rating_service = RatingService()
 ethics_service = EthicsDataService()
 synthetic_data_service = SyntheticDataService()
+baseline_service = BaselineService()
+session_service = SessionService()
 
 # Models
 class AnalyzeRequest(BaseModel):
@@ -455,7 +459,73 @@ async def add_user_rating(request: AddRatingRequest):
             status_code=500,
             detail=f"Error adding rating: {str(e)}"
         )
-    
+
+# ── Person 4: Baseline Comparison Routes ─────────────────────────────
+
+class CompareRequest(BaseModel):
+    company_a: str
+    company_b: str
+
+@app.post("/compare")
+async def compare_companies(request: CompareRequest):
+    """Compare two companies using the baseline method"""
+    try:
+        if not request.company_a or not request.company_b:
+            raise HTTPException(status_code=400, detail="Both company names are required")
+        
+        result = baseline_service.compare(request.company_a, request.company_b)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error performing comparison: {str(e)}"
+        )
+
+# ── Person 4: Session Management Routes ─────────────────────────────
+
+class CreateSessionRequest(BaseModel):
+    user_id: str | None = None
+
+class AddComparisonRequest(BaseModel):
+    company_a: str
+    company_b: str
+    winner: str
+    summary: str
+
+@app.post("/sessions")
+async def create_session(request: CreateSessionRequest):
+    """Create a new comparison session"""
+    return session_service.create_session(request.user_id)
+
+@app.get("/sessions")
+async def list_sessions():
+    """List all active sessions"""
+    return session_service.list_sessions()
+
+@app.get("/sessions/{session_id}")
+async def get_session(session_id: str):
+    """Get a specific session by ID"""
+    session = session_service.get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+@app.post("/sessions/{session_id}/comparisons")
+async def add_comparison_to_session(session_id: str, request: AddComparisonRequest):
+    """Add a comparison entry to a session"""
+    session = session_service.add_comparison(
+        session_id=session_id,
+        company_a=request.company_a,
+        company_b=request.company_b,
+        winner=request.winner,
+        summary=request.summary
+    )
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, LogOut, Star, Zap, Globe, ArrowLeft } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import LoginScreen from './components/LoginScreen'
@@ -8,9 +8,10 @@ import ChatBar from './components/ChatBar'
 import AnalysisPanel from './components/AnalysisPanel'
 import EthicsTimeline from './components/EthicsTimeline'
 import CompanySummaryView from './components/CompanySummaryView'
-import { analyzeCompanyRules, getEthicsTimeline } from './services/api'
-import type { AnalysisResult, Company } from './types'
 import RatingDashboard from './components/RatingDashboard'
+import ComparisonDashboard from './components/ComparisonDashboard'
+import { analyzeCompanyRules, getEthicsTimeline, createSession } from './services/api'
+import type { AnalysisResult, Company } from './types'
 
 function App() {
   const { user, isAuthenticated, logout } = useAuth()
@@ -18,11 +19,24 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<'analysis' | 'ratings'>('analysis')
+  const [activeView, setActiveView] = useState<'analysis' | 'ratings' | 'comparison'>('analysis')
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [showTimeline, setShowTimeline] = useState(false)
   const [showQuickReview, setShowQuickReview] = useState(false)
   const [timelineData, setTimelineData] = useState<any>(null)
+
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        const session = await createSession(user?.id)
+        setSessionId(session.id)
+      } catch (err) {
+        console.error("Failed to initialize session:", err)
+      }
+    }
+    if (isAuthenticated) initSession()
+  }, [isAuthenticated, user?.id])
 
   const handleShowTimeline = async () => {
     if (!selectedCompany) return
@@ -117,6 +131,16 @@ function App() {
                   }`}
                 >
                   Ratings
+                </button>
+                <button
+                  onClick={() => setActiveView('comparison')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    activeView === 'comparison'
+                      ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+                      : 'text-amber-200/50 hover:text-amber-200'
+                  }`}
+                >
+                  Comparison
                 </button>
               </div>
             </div>
@@ -278,9 +302,13 @@ function App() {
                     </div>
                   )}
                 </>
-              ) : (
+              ) : activeView === 'ratings' ? (
                 <div className="animate-fade-in">
                   <RatingDashboard />
+                </div>
+              ) : (
+                <div className="animate-fade-in h-full">
+                  <ComparisonDashboard sessionId={sessionId} />
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { AnalysisResult, Rating, DashboardSummary } from '../types'
+import type { AnalysisResult, Rating, DashboardSummary, ComparisonResult, Session } from '../types'
 
 const API_BASE_URL = 'http://localhost:8000'
 
@@ -265,6 +265,70 @@ export const addUserRating = async (data: {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.detail || 'Failed to add rating')
+    }
+    throw error
+  }
+}
+
+// ── Person 4: Comparison & Session APIs ────────────────────────────
+
+export const fetchCompanies = async (): Promise<string[]> => {
+  try {
+    const response = await api.get<{companies: string[]}>('/ethics/companies')
+    return response.data.companies
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to fetch companies')
+    }
+    throw error
+  }
+}
+
+export const compareCompanies = async (companyA: string, companyB: string): Promise<ComparisonResult> => {
+  try {
+    const response = await api.post<ComparisonResult>('/compare', {
+      company_a: companyA,
+      company_b: companyB,
+    })
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to compare companies')
+    }
+    throw error
+  }
+}
+
+export const createSession = async (userId?: string): Promise<Session> => {
+  try {
+    const response = await api.post<Session>('/sessions', { user_id: userId })
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to create session')
+    }
+    throw error
+  }
+}
+
+export const addComparisonToSession = async (
+  sessionId: string,
+  companyA: string,
+  companyB: string,
+  winner: string,
+  summary: string
+): Promise<Session> => {
+  try {
+    const response = await api.post<Session>(`/sessions/${sessionId}/comparisons`, {
+      company_a: companyA,
+      company_b: companyB,
+      winner,
+      summary
+    })
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to save comparison to session')
     }
     throw error
   }
