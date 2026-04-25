@@ -1,0 +1,469 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{colortbl}
+\usepackage{microtype}
+\usepackage{balance}
+
+% ── Colours ───────────────────────────────────────────────────────────────────
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{coderule}{RGB}{200,200,200}
+\definecolor{highlight}{RGB}{214,245,214}
+\definecolor{accentblue}{RGB}{0,82,155}
+
+% ── Listings (code blocks) ────────────────────────────────────────────────────
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    frame=single,
+    rulecolor=\color{coderule},
+    framesep=3pt,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=4pt,
+    xleftmargin=8pt,
+    xrightmargin=0pt,
+    captionpos=b,
+    belowskip=4pt,
+    aboveskip=4pt,
+}
+
+% ── Hyperref ──────────────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accentblue,
+    filecolor=accentblue,
+    urlcolor=accentblue,
+    citecolor=accentblue
+}
+
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────────────
+\title{%
+    \textbf{AI Principal Tracker Ethos:}\\
+    A Practical, Longitudinal System for\\
+    Comparative AI Policy Analysis and Ethics Signals (2019--2025)%
+}
+
+\author{
+    \IEEEauthorblockN{Souda Fathima Kurnool}
+    \IEEEauthorblockA{\textit{MSc in Artificial Intelligence}\\
+    National College of Ireland, Dublin\\
+    \href{mailto:24251445@student.ncirl.ie}{\texttt{24251445@student.ncirl.ie}}}
+    \and
+    \IEEEauthorblockN{Ali Akarsu}
+    \IEEEauthorblockA{\textit{MSc in Artificial Intelligence}\\
+    National College of Ireland, Dublin\\
+    \href{mailto:24304051@student.ncirl.ie}{\texttt{24304051@student.ncirl.ie}}}
+    \and
+    \IEEEauthorblockN{Jenil Jayeshbhai Parmar}
+    \IEEEauthorblockA{\textit{MSc in Artificial Intelligence}\\
+    National College of Ireland, Dublin\\
+    \href{mailto:24281883@student.ncirl.ie}{\texttt{24281883@student.ncirl.ie}}}
+    \and
+    \IEEEauthorblockN{Smit Rajendrasinh Baghel}
+    \IEEEauthorblockA{\textit{MSc in Artificial Intelligence}\\
+    National College of Ireland, Dublin\\
+    \href{mailto:25117149@student.ncirl.ie}{\texttt{25117149@student.ncirl.ie}}}
+    \and
+    \IEEEauthorblockN{Dhruv Sharma}
+    \IEEEauthorblockA{\textit{MSc in Artificial Intelligence}\\
+    National College of Ireland, Dublin\\
+    \href{mailto:24234915@student.ncirl.ie}{\texttt{24234915@student.ncirl.ie}}}
+}
+
+\maketitle
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{abstract}
+This paper presents the current implementation of \textbf{AI Principal Tracker
+Ethos}, a full-stack web system for comparative, longitudinal AI policy
+analysis. The project objective is to make corporate AI policy evolution
+interpretable to non-experts by combining structured policy timelines with a
+large-scale ethics keyword corpus. Two complementary data sources are
+integrated: (1) structured policy timelines for Google, Microsoft, IBM, Amazon,
+Meta, Apple, and Tesla (\textbf{537} records), and (2) a multi-year Gemini
+ethics keyword corpus spanning 2019--2025 (\textbf{6,\,967} records) used to
+derive category-level ethics emphasis (transparency, privacy, accountability,
+safety, governance, and related signals). The system combines a FastAPI backend,
+React + TypeScript frontend, and a lightweight LLM integration (Azure OpenAI
+optional; mock default) to provide policy timelines, ethics summaries, and user
+ratings. Results show that a keyword-based ethics timeline can provide a
+transparent, reproducible proxy for longitudinal emphasis while retaining a
+practical, fast, and deployable architecture.
+
+\smallskip\noindent\textbf{Key Contributions:}
+\begin{enumerate}
+  \item A production-ready AI policy dashboard with professional timeline
+    visualisations and category-level signals derived from real datasets.
+  \item A Gemini-specific ethics timeline built from \textbf{6,\,967} keyword
+    records across 2019--2025, enabling year-by-year ethics emphasis.
+  \item A modular, low-cost architecture that supports mock analysis by
+    default and optional Azure OpenAI summarisation without heavy local
+    inference.
+\end{enumerate}
+\end{abstract}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+
+AI policy documents are increasingly visible, yet users struggle to interpret
+what they imply in practice. Prior work highlights the gap between stated
+principles and operational reality---often labeled \emph{ethics washing} or
+symbolic compliance~\cite{munn2023ethics,stanford2023hai}. Our system addresses
+this by providing a concrete, user-facing tool to examine AI policy timelines
+and ethics emphasis over time. Instead of claiming new global statistics, we
+focus on transparent data processing, reproducible outputs, and clear
+visualisation of policy signals for different companies.
+
+\subsection*{Project Objectives and Novelty}
+The project is novel in its practical framing: rather than building an abstract
+ethics model, it integrates two datasets with different structure and granularity
+to produce interpretable, comparative timelines. The novelty lies in (i)
+repurposing a large ethics keyword corpus into a longitudinal ethics signal for
+Gemini, (ii) combining it with explicit policy timelines for other companies,
+and (iii) delivering this through a deployable dashboard that emphasises
+transparency and explainability. This approach avoids heavy infrastructure while
+still enabling longitudinal insights, aligning with the assessment emphasis on
+originality and impact.
+
+\subsection*{Problem Significance}
+Major providers publish AI principles, but end users rarely see how these
+principles evolve. Policy changes are subtle and dispersed across years, while
+ethics clauses can remain ambiguous. This motivates a dashboard that:
+(1) shows multi-year policy changes, (2) highlights ethics categories, and
+(3) supports rapid comparison between companies and datasets. The outcome is a
+tool that can support researchers, policy analysts, and end users who require
+clear evidence of ethics trends and potential gaps.
+
+\subsection*{Research Questions}
+\begin{description}
+  \item[RQ1] How can AI policy timelines be made interpretable and comparable
+    across multiple companies and time periods?
+  \item[RQ2] Can keyword-based ethics signals provide a useful longitudinal
+    proxy for policy emphasis when direct policy text is unavailable?
+  \item[RQ3] How can a lightweight LLM integration support policy summarisation
+    without heavy infrastructure or high compute costs?
+\end{description}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Related Work}
+
+Existing work provides valuable ethics frameworks but limited empirical tooling.
+Jobin et al. catalog a global inventory of ethics guidelines without a
+longitudinal, user-facing system~\cite{jobin2019global}. Munn provides a
+critical perspective on ethics washing but does not operationalise a pipeline
+or artefact for public use~\cite{munn2023ethics}. The AI life-cycle guidelines
+propose normative frameworks but are not grounded in concrete corporate policy
+timelines~\cite{springer2022development}.
+
+Our contribution is positioned differently: it emphasises a reproducible
+pipeline, deployable interface, and practical dataset integration. By combining
+structured policy timelines with an ethics keyword corpus and exposing the
+results via an accessible UI, we move from critique to practical observation
+and comparison. This aligns with calls for applied transparency and improved
+public access to policy evolution evidence.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Methodology}
+
+\subsection*{Data Sources}
+Two datasets are integrated.
+
+\begin{description}
+  \item[Dataset A -- Corporate policy timelines] CSV-based policy points for
+  major companies (Google, Microsoft, IBM, Amazon, Meta, Apple, Tesla) with
+  \textbf{537} total records (256 Google; 281 Microsoft/IBM/Amazon).
+  \item[Dataset B -- Gemini ethics keyword corpus] Five CSVs (2019, 2020,
+  2022, 2024, 2025) totalling \textbf{6,\,967} keyword records.
+  Each record maps a word to ethics categories such as fairness,
+  transparency, privacy, accountability, safety, governance, and oversight.
+\end{description}
+
+\subsection*{Data Preprocessing and Storage}
+Corporate policy CSVs are normalised into a common schema
+\{company, year, policy\_point, category, severity, impact, status\}. The Gemini
+corpus is parsed by year and mapped to ethics categories. We apply case
+normalisation, whitespace trimming, and unique-word counting to avoid inflated
+counts from repeated terms. Parsed records are cached in-memory at the backend
+service layer to reduce repeated CSV reads.
+
+\subsection*{Dataset Integration Strategy}
+The project integrates heterogeneous data by aligning both datasets to a
+common timeline interface. Corporate policy entries provide explicit
+year-stamped policy points, while Gemini keywords are aggregated into ethics
+signals per year. Both are mapped to shared fields (year, category, severity,
+impact) so that visualisation and comparisons are consistent regardless of
+source. This integration strategy is a core novelty of the system.
+
+\subsection*{Pipeline Overview}
+Figure~\ref{fig:pipeline} summarises the end-to-end workflow from CSV ingestion
+to the UI timeline visualisation.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\columnwidth]{pipeline_diagram.png}
+  \caption{System pipeline: CSV ingestion $\to$ ethics/category aggregation
+    $\to$ timeline API $\to$ React visualisation and policy cards.}
+  \label{fig:pipeline}
+\end{figure}
+
+\subsection*{Gemini Ethics Timeline Construction}
+For each year, unique keywords are counted per ethics category to produce an
+annual emphasis signal. The timeline visualises these counts as policy points
+(e.g., \emph{Transparency Focus}) with an impact indicator that reports the
+keyword count for that year. This provides a transparent, reproducible proxy
+for ethics emphasis.
+
+\subsection*{Lightweight ML Baseline (Semantic Drift)}
+To strengthen model-based evaluation without heavy compute, we implement a
+TF--IDF baseline on policy points per year and compute cosine similarity
+between consecutive years. This provides a lightweight semantic drift signal
+that complements the timeline view. The baseline is explainable, fast, and
+aligned with the project's emphasis on interpretability.
+
+\subsection*{System Architecture}
+The application is implemented as a lightweight full-stack system:
+
+\begin{itemize}
+  \item \textbf{Backend:} FastAPI with CSV ingestion, policy timeline API, and
+  optional LLM summarisation via Azure OpenAI.
+  \item \textbf{Frontend:} React + TypeScript + Vite with a timeline UI,
+  policy cards, quick review view, and user ratings interface.
+  \item \textbf{Data:} Local CSV datasets and JSON-based ratings storage for
+  fast setup and reproducibility.
+\end{itemize}
+
+\subsection*{User Review Framework}
+The system includes a human-in-the-loop review layer in which users rate
+company policies across fairness, transparency, privacy, and accountability.
+Each rating is stored and aggregated per company. The \emph{Quick Review}
+Dashboard visualises these aggregates, presenting both overall performance
+and category-level breakdowns. This ensures that policy evaluation is grounded
+in user judgment rather than only automated signals.
+
+\subsection*{API Endpoints}
+Key endpoints include:
+\begin{itemize}
+  \item \texttt{GET /ethics/companies} --- list available companies (including
+  Gemini).
+  \item \texttt{GET /ethics/timeline/\{company\}} --- policy timeline or Gemini
+  ethics signals.
+  \item \texttt{POST /chat} --- optional LLM-backed explanations (mock by
+  default).
+\end{itemize}
+
+\subsection*{Challenges and Design Decisions}
+Three implementation challenges informed the final design:
+\begin{enumerate}
+  \item \textbf{Heterogeneous data} --- corporate policy points are structured,
+  while Gemini data is keyword-based. We designed a common timeline interface
+  so both datasets can be rendered consistently.
+  \item \textbf{Compute constraints} --- to avoid heavy local inference, the
+  system defaults to a mock LLM provider with optional Azure OpenAI for
+  analysis. This keeps the system deployable on modest hardware.
+  \item \textbf{Interpretability} --- raw keyword counts are not intuitive, so
+  we map them to category-level ``focus'' items with severity bands (low,
+  medium, high) based on year-specific counts.
+\end{enumerate}
+
+\subsection*{Evaluation Strategy}
+Evaluation focuses on data coverage, pipeline correctness, and UI clarity.
+We report dataset sizes, year coverage, and qualitative inspection of timeline
+rendering to ensure each year contains meaningful policy signals. The aim is
+to provide a reproducible, interpretable artefact rather than opaque metrics.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Results and Evaluation}
+
+\subsection*{Timeline Coverage}
+The Gemini timeline spans 2019--2025 and exposes shifts across 20+ ethics
+categories. The corporate timeline dataset provides explicit policy points
+with category and severity fields, enabling cross-company comparisons.
+
+\begin{table}[!htb]
+  \renewcommand{\arraystretch}{1.1}
+  \caption{Dataset coverage used in the current implementation.}
+  \label{tab:datasets}
+  \begin{tabular}{lrr}
+    	oprule
+    	extbf{Dataset} & \textbf{Records} & \textbf{Years} \\
+    \midrule
+    Gemini ethics keyword corpus & 6{,}967 & 2019--2025 \\
+    Corporate policy timelines & 537 & 2018--2022 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{System Usability}
+The updated Analyse section presents clear entry points for timeline analysis
+and supports fast loading via cached CSV parsing. Policy cards display
+category, severity, and impact in a professional, readable layout.
+
+\subsection*{User Review Outcomes}
+The Quick Review Dashboard consolidates user ratings into an overall score and
+category-level metrics, giving stakeholders a concise view of company
+performance alongside the timeline evidence. This user-driven layer enhances
+the practical impact of the system by aligning policy evaluation with human
+judgment.
+
+\subsection*{Interpretation and Impact}
+The Gemini timeline makes year-by-year ethics emphasis visible through a
+consistent visual language. When combined with explicit corporate policy
+points, the system enables a cross-dataset comparison of ethics commitments
+and their evolution. This directly supports stakeholders who need interpretable
+policy evidence rather than opaque summaries.
+
+\subsection*{Semantic Drift Baseline}
+The TF--IDF cosine similarity baseline provides a compact measure of policy
+shift between consecutive years. While not a full predictive model, it offers
+an interpretable signal for whether policy language is stabilising or changing,
+and it can be extended to compare drift across companies in future work.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusions and Future Work}
+
+\subsection*{Summary of Findings}
+This project demonstrates that a practical, reproducible pipeline can surface
+longitudinal ethics signals from heterogeneous datasets. The Gemini keyword
+corpus provides a usable proxy for ethics emphasis across years, while the
+corporate policy timelines provide explicit policy points with category and
+severity. Combined in a single UI, the system delivers a clear and professional
+summary of policy evolution.
+
+\subsection*{Significance and Impact}
+The principal impact is a user-facing artefact that supports transparent
+inspection of AI ethics commitments. The system is lightweight, deployable on
+modest hardware, and designed for extension with additional datasets or richer
+policy sources. It therefore serves as both a research tool and a practical
+dashboard for stakeholders.
+
+\subsection*{Limitations}
+\begin{enumerate}
+  \item The Gemini dataset is keyword-based and does not include full policy
+  text; keyword counts should be treated as proxies rather than definitive
+  statements.
+  \item Corporate policy timelines cover a subset of companies and years;
+  additional sources could improve longitudinal depth.
+  \item Evaluation focuses on data coverage and interpretability rather than
+  formal user studies; future work should include usability testing.
+\end{enumerate}
+
+\subsection*{Future Work}
+\begin{enumerate}
+  \item Integrate structured policy documents to align keyword signals with
+  direct policy excerpts and citations.
+  \item Extend the ratings system to include public feedback and inter-rater
+  reliability metrics for policy summaries.
+  \item Add advanced analytics (trend slopes, category deltas) and automated
+  alerts for significant policy shifts.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\balance
+
+\begin{thebibliography}{99}
+
+\bibitem{jobin2019global}
+A.~Jobin, M.~Ienca, and E.~Vayena,
+``The global landscape of AI ethics guidelines,''
+\textit{Nature Mach.\ Intell.}, vol.~1, no.~9, pp.~389--399, 2019.
+\doi{10.1038/s42256-019-0088-2}
+
+\bibitem{munn2023ethics}
+L.~Munn,
+``The ethics of AI ethics: An evaluation of guidelines,''
+\textit{AI \& Ethics}, vol.~3, no.~2, pp.~1--12, 2023.
+\doi{10.1007/s43681-022-00197-9}
+
+\bibitem{springer2022development}
+Springer Nature,
+``Development of AI ethics guidelines model based on AI life cycle,''
+\textit{Springer AI Ethics J.}, vol.~4, pp.~1--18, 2022.
+
+\bibitem{stanford2023hai}
+Stanford University HAI,
+\textit{2023 AI Index Report},
+Stanford, CA, USA, 2023.
+
+\bibitem{nature2023responsible}
+Nature Portfolio,
+``Responsible AI measures dataset for ethics evaluation of AI systems,''
+\textit{Scientific Data}, vol.~10, no.~1, pp.~1--9, 2023.
+
+\bibitem{floridi2021ai}
+L.~Floridi and J.~Cowls,
+``A unified framework of five principles for AI in society,''
+\textit{Philos.\ Trans.\ R.\ Soc.\ A}, vol.~379, no.~2207, 2021.
+\doi{10.1098/rsta.2020.0367}
+
+\bibitem{rahwan2021machine}
+I.~Rahwan,
+``Machine behaviour: A field of study to understand intelligent machines,''
+\textit{Nature}, vol.~568, no.~7753, pp.~477--486, 2019.
+\doi{10.1038/s41586-019-1138-y}
+
+\bibitem{openai2023gpt4}
+OpenAI,
+``GPT-4 Technical Report,''
+San Francisco, CA, USA, 2023, arXiv:2303.08774.
+
+\bibitem{bommasani2022opportunities}
+R.~Bommasani \textit{et~al.},
+``On the opportunities and risks of foundation models,''
+Stanford CRFM, Rep.\ 2022-001, 2022.
+
+\bibitem{dataGov2024}
+Data.gov,
+``AI and machine learning datasets,''
+U.S.\ GSA, Washington, D.C., USA, 2024.
+[Online]. Available: \url{https://catalog.data.gov}
+
+\bibitem{worldBank2024}
+World Bank,
+``World Bank Open Data,''
+Washington, D.C., USA, 2024.
+[Online]. Available: \url{https://data.worldbank.org}
+
+\bibitem{ieeeEthics2024}
+IEEE,
+``Ethically Aligned Design (EAD v3),''
+IEEE Standards Assoc., Piscataway, NJ, USA, 2024.
+
+\bibitem{beijing2019ai}
+Beijing Academy of Artificial Intelligence,
+``Beijing AI Principles,''
+2019. [Online]. Available: \url{https://www.baai.ac.cn}
+
+\bibitem{eu2021ai}
+European Commission,
+``Ethics Guidelines for Trustworthy AI,''
+Brussels, Belgium, 2021.
+
+\bibitem{gebru2021datasheets}
+T.~Gebru \textit{et~al.},
+``Datasheets for datasets,''
+\textit{Commun.\ ACM}, vol.~64, no.~12, pp.~86--92, 2021.
+
+\end{thebibliography}
+
+\end{document}

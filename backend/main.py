@@ -85,24 +85,24 @@ async def chat(request: ChatRequest, provider: str | None = Query(None, descript
         if key in DEFAULT_QA:
             return ChatResponse(response=DEFAULT_QA[key], message=request.message)
 
-        # Greeting detection: if the message starts with a hello-like word followed by a name,
-        # return a friendly personalized greeting without calling the LLM.
-        # Examples matched: "hello Alice", "hi bob", "hey Dr. Smith" -> uses first name token.
+        # Greeting detection: if the user sends a greeting phrase,
+        # return a personalized greeting injecting system username and current day.
+        import getpass
+        from datetime import datetime
+        
         tokens = request.message.strip().split()
-        if len(tokens) >= 2:
-            first_word = tokens[0].lower().strip()
-            if first_word in ("hello", "hi", "hey"):
-                # extract a simple firstname token (strip punctuation)
-                raw_name = tokens[1]
-                # keep only letters and common name chars
-                import re
-                m = re.match(r"([A-Za-z'-]+)", raw_name)
-                if m:
-                    firstname = m.group(1)
-                else:
-                    firstname = raw_name
-
-                greeting = f"Hey {firstname}, How are you doing today"
+        if len(tokens) >= 1:
+            first_word = tokens[0].lower().strip().strip(',.!?')
+            if first_word in ("hello", "hi", "hey", "greetings"):
+                try:
+                    username = getpass.getuser().capitalize()
+                except Exception:
+                    username = "Friend"
+                
+                current_day = datetime.now().strftime("%A")
+                date_str = datetime.now().strftime("%B %d")
+                
+                greeting = f"Hey {username}, how are you doing? Happy {current_day}! 🌟 How can I help you analyze AI policies today on {date_str}?"
                 return ChatResponse(response=greeting, message=request.message)
         
         # If a provider query param is provided, try to use a provider just for this request
@@ -231,6 +231,23 @@ async def get_company_ratings(company_name: str):
         raise HTTPException(
             status_code=500,
             detail=f"Error fetching ratings: {str(e)}"
+        )
+
+@app.get("/ratings/company/{company_name}/details")
+async def get_company_rating_details(company_name: str):
+    """Get aggregated rating details for a company"""
+    try:
+        if not company_name or not company_name.strip():
+            raise HTTPException(status_code=400, detail="Company name is required")
+
+        details = rating_service.get_company_details(company_name)
+        return details
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching company rating details: {str(e)}"
         )
 
 @app.get("/ratings/analytics/summary")

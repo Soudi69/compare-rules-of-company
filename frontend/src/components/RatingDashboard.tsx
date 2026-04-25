@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { submitRating, getDashboardSummary, getCompanyRatings } from '../services/api'
 import type { DashboardSummary, Rating } from '../types'
 
-const COMPANIES = ['openai', 'google', 'microsoft', 'meta', 'amazon']
+const DEFAULT_COMPANIES = ['openai', 'google', 'microsoft', 'meta', 'amazon', 'ibm', 'apple', 'tesla', 'gemini']
 
 const COMPANY_COLORS: string[] = [
   '#f59e0b',
@@ -120,19 +120,19 @@ export default function RatingDashboard() {
     } catch (err) {
       console.error('Failed to load dashboard:', err)
       setSummary({
-        totalCompaniesRated: 5,
-        totalRatings: 24,
-        averageEthicsScore: 6.8,
-        mostRatedCompany: 'OpenAI',
-        highestScoringCompany: 'Microsoft',
-        analytics: COMPANIES.map((c) => ({
+        totalCompaniesRated: 0,
+        totalRatings: 0,
+        averageEthicsScore: 0,
+        mostRatedCompany: 'N/A',
+        highestScoringCompany: 'N/A',
+        analytics: DEFAULT_COMPANIES.map((c) => ({
           companyName: c,
-          averageTransparency: Math.round(Math.random() * 4 + 5),
-          averageFairness: Math.round(Math.random() * 4 + 5),
-          averagePrivacy: Math.round(Math.random() * 4 + 5),
-          averageAccountability: Math.round(Math.random() * 4 + 5),
-          averageOverall: Math.round(Math.random() * 4 + 5),
-          totalRatings: Math.floor(Math.random() * 10 + 1)
+          averageTransparency: 0,
+          averageFairness: 0,
+          averagePrivacy: 0,
+          averageAccountability: 0,
+          averageOverall: 0,
+          totalRatings: 0
         }))
       })
     } finally {
@@ -143,6 +143,19 @@ export default function RatingDashboard() {
   useEffect(() => {
     loadDashboard()
   }, [selectedCompany])
+
+  const availableCompanies = summary?.analytics?.length
+    ? summary.analytics.map(a => a.companyName)
+    : DEFAULT_COMPANIES
+
+  useEffect(() => {
+    if (availableCompanies.length && !availableCompanies.includes(selectedCompany)) {
+      setSelectedCompany(availableCompanies[0])
+    }
+    if (availableCompanies.length && !availableCompanies.includes(form.company)) {
+      setForm(f => ({ ...f, company: availableCompanies[0] }))
+    }
+  }, [availableCompanies, selectedCompany, form.company])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -327,7 +340,7 @@ export default function RatingDashboard() {
                   onChange={e => setSelectedCompany(e.target.value)}
                   className="bg-gray-900/80 border border-amber-500/30 text-amber-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-amber-400"
                 >
-                  {COMPANIES.map(c => (
+                  {availableCompanies.map(c => (
                     <option key={c} value={c}>
                       {c.charAt(0).toUpperCase() + c.slice(1)}
                     </option>
@@ -415,7 +428,7 @@ export default function RatingDashboard() {
                   onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
                   className="w-full bg-gray-900/80 border border-orange-500/30 text-amber-200 rounded-xl px-4 py-3 focus:outline-none focus:border-amber-400 transition-colors"
                 >
-                  {COMPANIES.map(c => (
+                  {availableCompanies.map(c => (
                     <option key={c} value={c}>
                       {c.charAt(0).toUpperCase() + c.slice(1)}
                     </option>

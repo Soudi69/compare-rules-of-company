@@ -84,6 +84,54 @@ class MockLLMProvider(LLMProvider):
     def generate(self, prompt: str, max_tokens: int = 2000) -> str:
         """Generate mock response"""
         # Lightweight mock response used in development when no external LLM is configured
+        if "google" in prompt.lower():
+            return json.dumps({
+                "overallSummary": "Google's terms provide broad authorization for data collection to enhance services and ad personalization, balanced by centralized user controls via the 'My Activity' dashboard. Recently, policies have expanded to explicitly cover the use of publicly available data for training AI models like Gemini.",
+                "keyPoints": [
+                    "Extensive Data Collection: Searches, location data, and usage patterns are collected to power personalized advertisements.",
+                    "Centralized Control: Users can manage, export, and delete their data via the 'Google Account' privacy settings.",
+                    "AI Development: Data policies allow the use of publicly accessible data to train generative AI systems."
+                ],
+                "redFlags": [
+                    {
+                        "title": "Cross-Service Tracking",
+                        "description": "Deep integration across YouTube, Maps, Search, and Android results in a comprehensive data profile.",
+                        "severity": "high",
+                        "year": 2025
+                    },
+                    {
+                        "title": "Broad AI Permissions",
+                        "description": "Policy updates grant extensive rights to use public information for AI training.",
+                        "severity": "medium",
+                        "year": 2024
+                    }
+                ],
+                "timelineChanges": [
+                    {
+                        "year": 2024,
+                        "change": "Updated terms to allow scraping of publicly available data.",
+                        "impact": "Increased data usage for AI models like Gemini."
+                    },
+                    {
+                        "year": 2025,
+                        "change": "Enhanced user tools for managing sensitive location histories.",
+                        "impact": "Improved user privacy controls."
+                    }
+                ],
+                "recommendations": [
+                    {
+                        "title": "Audit 'My Activity'",
+                        "description": "Regularly audit 'My Activity' and turn on the auto-delete feature.",
+                        "priority": "important"
+                    },
+                    {
+                        "title": "Adjust Ad Settings",
+                        "description": "Review and adjust privacy settings in the Google Ad Center to limit tracking.",
+                        "priority": "standard"
+                    }
+                ]
+            })
+            
         return json.dumps({
             "overallSummary": "This is a mock response. Real LLM analysis is disabled.",
             "keyPoints": [

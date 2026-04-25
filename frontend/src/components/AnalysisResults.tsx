@@ -1,5 +1,7 @@
 import { AlertTriangle, CheckCircle, TrendingUp, AlertCircle } from 'lucide-react'
-import type { AnalysisResult, RedFlag, TimelineChange, Recommendation } from '../types'
+import { CosmosChatIcons } from './CosmosChatIcons'
+import { AuroraText, CosmicCard, GlowPulse } from './CosmosTheme'
+import type { AnalysisResult } from '../types'
 
 interface AnalysisResultsProps {
   analysis: AnalysisResult
@@ -45,21 +47,27 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header with Compliance Score */}
-      <div className="bg-gradient-to-r from-purple-900/20 to-dark-800 border border-purple-600/30 rounded-xl p-6 backdrop-blur-sm">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-1">{analysis.companyName}</h2>
-            <p className="text-dark-400">AI Ethical Guidelines Analysis</p>
-          </div>
-          <div className="text-right">
-            <div className="text-4xl font-bold text-purple-400 mb-1">
-              {analysis.complianceScore}%
+      {/* Cosmic Policy Selling Point */}
+      <GlowPulse>
+        <CosmicCard className="bg-gradient-to-br from-purple-900/80 to-dark-900/90 border border-purple-600/40 shadow-2xl shadow-purple-900/30 p-6 flex flex-col md:flex-row items-center gap-6 mb-2">
+          <div className="flex items-center gap-4 mb-4 md:mb-0">
+            <CosmosChatIcons.chat className="w-12 h-12 text-amber-300 animate-pulse drop-shadow-lg" />
+            <div>
+              <AuroraText className="text-2xl font-bold">{analysis.companyName} AI Policy at a Glance</AuroraText>
+              <p className="text-purple-200/80 text-sm mt-1">Your trusted guide to responsible, transparent, and ethical AI practices.</p>
             </div>
-            <p className="text-xs text-dark-400">Compliance Score</p>
           </div>
-        </div>
-        <p className="text-dark-300 leading-relaxed">{analysis.overallSummary}</p>
+          <div className="flex flex-col items-center justify-center ml-auto">
+            <span className="text-4xl font-extrabold text-purple-300 drop-shadow-lg">{analysis.complianceScore}%</span>
+            <span className="text-xs text-purple-200/70">Compliance Score</span>
+          </div>
+        </CosmicCard>
+      </GlowPulse>
+
+      {/* Short, attractive summary */}
+      <div className="flex items-center gap-3 mb-2">
+        <CosmosChatIcons.message className="w-6 h-6 text-blue-300 animate-float" />
+        <span className="text-lg text-amber-100 font-semibold">{analysis.overallSummary}</span>
       </div>
 
       {/* Key Points */}

@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Search, ArrowRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Compass, ArrowRight } from 'lucide-react'
+import { getEthicsCompanies } from '../services/api'
 
 interface CompanyInputProps {
   onAnalyze: (companyName: string) => void
@@ -8,6 +9,25 @@ interface CompanyInputProps {
 
 export default function CompanyInput({ onAnalyze, isLoading }: CompanyInputProps) {
   const [input, setInput] = useState('')
+  const [companies, setCompanies] = useState<string[]>([])
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const result = await getEthicsCompanies()
+        // Prioritize these companies for suggestions
+        const priority = ['Gemini', 'Google', 'Microsoft', 'Meta', 'Amazon', 'OpenAI']
+        const sorted = priority.filter(c => result.companies.includes(c))
+        setCompanies(sorted.length > 0 ? sorted : result.companies)
+      } catch (err) {
+        console.error('Failed to fetch companies:', err)
+        // Fallback suggestions
+        setCompanies(['Gemini', 'Google', 'Microsoft', 'Meta', 'Amazon'])
+      }
+    }
+    
+    fetchCompanies()
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -15,8 +35,6 @@ export default function CompanyInput({ onAnalyze, isLoading }: CompanyInputProps
       onAnalyze(input.trim())
     }
   }
-
-  const suggestedCompanies = ['OpenAI', 'Google', 'Microsoft', 'Meta', 'Amazon']
 
   return (
     <div>
@@ -26,7 +44,7 @@ export default function CompanyInput({ onAnalyze, isLoading }: CompanyInputProps
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+            <Compass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
             <input
               type="text"
               value={input}
@@ -53,7 +71,7 @@ export default function CompanyInput({ onAnalyze, isLoading }: CompanyInputProps
             Try these companies
           </p>
           <div className="space-y-2">
-            {suggestedCompanies.map((company) => (
+            {companies.map((company) => (
               <button
                 key={company}
                 onClick={() => {

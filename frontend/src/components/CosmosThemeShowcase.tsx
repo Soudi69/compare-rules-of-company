@@ -6,7 +6,7 @@
  * in your actual application
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   CosmicButton,
   SecondaryButton,
@@ -20,7 +20,6 @@ import {
   ShimmerText,
   CosmicDivider,
   FloatingElement,
-  GlowPulse,
   CosmicSpinner,
   CosmicAlert,
   CosmicModal,

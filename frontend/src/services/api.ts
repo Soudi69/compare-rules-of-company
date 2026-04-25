@@ -213,12 +213,22 @@ export const getCompanyAggregates = async (companyName: string): Promise<Company
 }
 
 export const getCompanyRatingDetails = async (companyName: string): Promise<{
-  aggregates: CompanyAggregate
-  ratings: Array<UserRating & { user_name: string, user_department: string, user_expertise: string }>
+  aggregates: {
+    company_name: string
+    total_ratings: number
+    avg_ethics_score: number
+    avg_privacy_score: number
+    avg_fairness_score: number
+    avg_transparency_score: number
+    avg_overall_score: number
+    rating_trend: 'up' | 'stable' | 'down'
+    last_updated: string
+  }
+  ratings: Array<Rating>
   rating_count: number
 }> => {
   try {
-    const response = await api.get(`/synthetic/companies/${companyName}/details`)
+    const response = await api.get(`/ratings/company/${companyName}/details`)
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Star, Building2, ChevronRight, Zap } from 'lucide-react'
+import { Compass, Star, Globe, ChevronRight, Zap } from 'lucide-react'
 import type { Company } from '../types'
 
 interface CompanySidebarProps {
@@ -29,11 +29,11 @@ const MOCK_COMPANIES: Company[] = [
   },
   {
     id: '3',
-    name: 'IBM',
-    ticker: 'IBM',
-    industry: 'Enterprise AI',
-    founded: 1911,
-    description: 'Enterprise AI and responsible innovation',
+    name: 'OpenAI',
+    ticker: 'OPENAI',
+    industry: 'Generative AI',
+    founded: 2015,
+    description: 'Advanced AI research & deployment',
   },
   {
     id: '4',
@@ -53,11 +53,11 @@ const MOCK_COMPANIES: Company[] = [
   },
   {
     id: '6',
-    name: 'Apple',
-    ticker: 'AAPL',
-    industry: 'Consumer Tech',
-    founded: 1976,
-    description: 'Consumer electronics and AI',
+    name: 'Anthropic',
+    ticker: 'ANTH',
+    industry: 'AI Safety & Research',
+    founded: 2021,
+    description: 'AI model safety & alignment',
   },
   {
     id: '7',
@@ -98,7 +98,7 @@ export default function CompanySidebar({
       <div className="p-4 border-b border-purple-900/30 bg-gradient-to-r from-purple-900/10 to-blue-900/5 backdrop-blur-sm">
         <h2 className="text-lg font-bold text-white mb-3 flex items-center space-x-2">
           <div className="p-2 bg-gradient-to-br from-purple-600/40 to-blue-600/30 rounded-lg">
-            <Building2 className="w-5 h-5 text-purple-300 drop-shadow-lg" />
+            <Globe className="w-5 h-5 text-purple-300 drop-shadow-lg" />
           </div>
           <span className="bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
             Explore
@@ -108,7 +108,7 @@ export default function CompanySidebar({
         {/* Cosmic Search */}
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-400 z-10" />
+          <Compass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-400 z-10" />
           <input
             type="text"
             placeholder="Search companies..."
@@ -144,6 +144,7 @@ export default function CompanySidebar({
               <div className="relative flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
+                    <Globe className="w-5 h-5 text-gray-500 mb-2 group-hover:text-amber-500 transition-colors" />
                     <h3 className="font-bold text-white truncate group-hover:text-purple-200 transition-colors">
                       {company.name}
                     </h3>

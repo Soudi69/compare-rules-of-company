@@ -86,37 +86,38 @@ function App() {
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-600/20 to-purple-600/10 animate-pulse"></div>
                 <Sparkles className="w-6 h-6 text-amber-300 relative z-10 drop-shadow-lg" />
               </div>
-              {/* Navigation tabs */}
-<div className="flex gap-2 ml-6">
-  <button
-    onClick={() => setActiveView('analysis')}
-    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-      activeView === 'analysis'
-        ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
-        : 'text-amber-200/50 hover:text-amber-200'
-    }`}
-  >
-    🔍 Analysis
-  </button>
-  <button
-    onClick={() => setActiveView('ratings')}
-    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-      activeView === 'ratings'
-        ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
-        : 'text-amber-200/50 hover:text-amber-200'
-    }`}
-  >
-    ⭐ Ratings
-  </button>
-</div>
-
-              <div>
+              
+              <div className="ml-2">
                 <h1 className="text-2xl font-black bg-gradient-to-r from-amber-300 via-orange-300 to-purple-300 bg-clip-text text-transparent drop-shadow-lg">
                   ✨ Apte
                 </h1>
                 <p className="text-xs text-amber-200/80 font-semibold uppercase tracking-wider">
                   AI Principle Tracker Ethos
                 </p>
+              </div>
+
+              {/* Navigation tabs */}
+              <div className="flex gap-2 ml-6">
+                <button
+                  onClick={() => setActiveView('analysis')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    activeView === 'analysis'
+                      ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+                      : 'text-amber-200/50 hover:text-amber-200'
+                  }`}
+                >
+                  Analysis
+                </button>
+                <button
+                  onClick={() => setActiveView('ratings')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    activeView === 'ratings'
+                      ? 'bg-orange-600/30 text-amber-300 border border-orange-500/50'
+                      : 'text-amber-200/50 hover:text-amber-200'
+                  }`}
+                >
+                  Ratings
+                </button>
               </div>
             </div>
 
@@ -142,7 +143,6 @@ function App() {
                 }`}
                 title="Toggle AI Chat Assistant"
               >
-                💬
                 <span>Chat</span>
               </button>
 

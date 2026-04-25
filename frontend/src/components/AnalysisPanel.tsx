@@ -38,6 +38,23 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ selectedCompany, onAnalyz
 
   return (
     <div className="w-full">
+      <div className="mb-6 text-center">
+        <h3 className="text-xl font-semibold text-amber-200">Analysis & Timeline</h3>
+        <p className="text-sm text-amber-200/70 mt-1">
+          Generate a clear, structured view of ethics commitments and timeline details.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
+          <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-200 border border-orange-500/30">
+            Policies & milestones
+          </span>
+          <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-200 border border-purple-500/30">
+            Category highlights
+          </span>
+          <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-200 border border-amber-500/30">
+            Impact indicators
+          </span>
+        </div>
+      </div>
       {/* Analyse Button Section */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
         <button
@@ -51,7 +68,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ selectedCompany, onAnalyz
           {/* Button content */}
           <div className="relative flex items-center gap-2">
             <Activity className="w-5 h-5 animate-pulse group-hover:animate-none" />
-            <span>{loading ? 'Loading...' : 'Analyse'}</span>
+            <span>{loading ? 'Loading...' : 'Timeline'}</span>
             {!loading && <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
           </div>
         </button>
@@ -73,7 +90,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ selectedCompany, onAnalyz
         </button>
 
         {!selectedCompany && (
-          <p className="text-sm text-gray-500">Select a company to analyse its ethics timeline</p>
+          <p className="text-sm text-gray-500">Select a company to analyze its ethics timeline</p>
         )}
       </div>
 
